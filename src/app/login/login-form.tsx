@@ -31,7 +31,7 @@ export function LoginForm() {
         router.push("/dashboard");
         router.refresh();
       } else {
-        setError(data.message || "Credenciales incorrectas. Intenta nuevamente.");
+        setError(data.error || "Credenciales incorrectas. Intenta nuevamente.");
       }
     } catch {
       setError("Error de conexión. Revisa tu internet.");
