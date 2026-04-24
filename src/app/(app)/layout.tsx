@@ -15,14 +15,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!dentist) redirect("/login");
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       <SidebarAuth
         dentistName={dentist.fullName}
         dentistEmail={dentist.email}
         verificationStatus={dentist.verificationStatus || "pending"}
         plan={dentist.plan || "trial"}
       />
-      <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <main className="flex-1 overflow-y-auto p-3 md:p-6">{children}</main>
     </div>
   );
 }

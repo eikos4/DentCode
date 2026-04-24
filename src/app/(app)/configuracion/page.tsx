@@ -28,10 +28,10 @@ export default async function ConfigPage() {
   );
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Configuración</h1>
-        <p className="text-sm text-slate-600 mt-1">
+    <div className="p-3 md:p-6 max-w-5xl mx-auto">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-xl md:text-3xl font-bold tracking-tight">Configuración</h1>
+        <p className="text-xs md:text-sm text-slate-600 mt-1">
           Gestiona tu perfil público, servicios, horarios y sedes.
         </p>
       </div>

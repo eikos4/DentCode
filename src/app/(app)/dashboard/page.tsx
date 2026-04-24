@@ -29,49 +29,49 @@ export default async function DashboardPage() {
     : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 max-w-7xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 text-sm">{today.toLocaleDateString("es-CL", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-500 text-xs md:text-sm">{today.toLocaleDateString("es-CL", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {[
           { label: "Pacientes", value: totalPatients, icon: Users, color: "blue" },
           { label: "Citas hoy", value: todayAppointments.length, icon: Calendar, color: "green" },
           { label: "Recalls pendientes", value: pendingRecalls, icon: Clock, color: "orange" },
           { label: "Valoracion media", value: avgRating ? `${avgRating} ★` : "—", icon: Star, color: "yellow" },
         ].map((kpi) => (
-          <div key={kpi.label} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <kpi.icon className="w-5 h-5 text-gray-400 mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{kpi.value}</div>
-            <div className="text-xs text-gray-500 mt-1">{kpi.label}</div>
+          <div key={kpi.label} className="bg-white rounded-xl p-3 md:p-4 border border-gray-100 shadow-sm">
+            <kpi.icon className="w-4 h-4 md:w-5 md:h-5 text-gray-400 mb-1.5 md:mb-2" />
+            <div className="text-xl md:text-2xl font-bold text-gray-900">{kpi.value}</div>
+            <div className="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1">{kpi.label}</div>
           </div>
         ))}
       </div>
 
       {/* Citas de hoy */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-800">Citas de hoy</h2>
-          <Link href="/agenda" className="text-sm text-blue-600 hover:underline">Ver agenda</Link>
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 md:p-5">
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <h2 className="font-semibold text-sm md:text-base text-gray-800">Citas de hoy</h2>
+          <Link href="/agenda" className="text-xs md:text-sm text-blue-600 hover:underline">Ver agenda</Link>
         </div>
         {todayAppointments.length === 0 ? (
           <p className="text-gray-400 text-sm py-4 text-center">No hay citas para hoy</p>
         ) : (
           <div className="space-y-2">
             {todayAppointments.map((a) => (
-              <div key={a.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-                <div>
-                  <p className="font-medium text-sm text-gray-900">{a.patient.fullName}</p>
-                  <p className="text-xs text-gray-500">{a.treatment || "Consulta"}</p>
+              <div key={a.id} className="flex items-center justify-between p-2.5 md:p-3 rounded-lg bg-gray-50 gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm text-gray-900 truncate">{a.patient.fullName}</p>
+                  <p className="text-xs text-gray-500 truncate">{a.treatment || "Consulta"}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0">
                   <p className="text-sm font-medium text-gray-700">
                     {a.startAt.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
                   </p>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                  <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 rounded-full ${
                     a.status === "COMPLETED" ? "bg-green-100 text-green-700" :
                     a.status === "CONFIRMED" ? "bg-blue-100 text-blue-700" :
                     "bg-gray-100 text-gray-600"

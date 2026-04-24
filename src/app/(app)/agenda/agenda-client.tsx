@@ -111,35 +111,35 @@ export function AgendaClient({
   }, [view, focus]);
 
   return (
-    <div className="p-6 max-w-[1500px] mx-auto">
+    <div className="p-3 md:p-6 max-w-[1500px] mx-auto">
       {/* Top bar */}
-      <div className="flex items-start justify-between flex-wrap gap-3 mb-5 anim-fade-up">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight capitalize">{title}</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+      <div className="flex items-start justify-between flex-wrap gap-3 mb-4 md:mb-5 anim-fade-up">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight capitalize truncate">{title}</h1>
+          <p className="text-xs md:text-sm text-slate-500 mt-0.5">
             Agenda · {todayStats.total} citas hoy · <span className="text-emerald-700 font-medium">{todayStats.confirmed} confirmadas</span>
             {todayStats.pending > 0 && <> · <span className="text-amber-700 font-medium">{todayStats.pending} por confirmar</span></>}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={() => openNew()}
-            className="px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition flex items-center gap-1.5"
+            className="px-2.5 md:px-3 py-2 text-xs md:text-sm rounded-lg bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition flex items-center gap-1.5"
           >
-            <Plus className="w-4 h-4" /> Nueva cita
+            <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">Nueva cita</span><span className="sm:hidden">Nueva</span>
           </button>
         </div>
       </div>
 
       {/* KPI strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 anim-fade-up delay-100">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-4 md:mb-5 anim-fade-up delay-100">
         <Kpi icon={Clock} label="Hoy" value={todayStats.total} accent="blue" />
         <Kpi icon={CheckCircle2} label="Confirmadas" value={todayStats.confirmed} accent="emerald" />
         <Kpi icon={AlertCircle} label="Por confirmar" value={todayStats.pending} accent="amber" />
         <Kpi icon={TrendingUp} label="Ingreso hoy" value={fmtCLP(todayStats.revenue) ?? "$0"} accent="blue" />
       </div>
 
-      <div className="grid lg:grid-cols-[260px_1fr] gap-5">
+      <div className="grid xl:grid-cols-[260px_1fr] gap-4 md:gap-5">
         {/* Sidebar */}
         <aside className="space-y-4 anim-fade-up delay-200">
           {/* View switcher */}
@@ -255,7 +255,7 @@ function DayView({
   for (let h = HOUR_START; h <= HOUR_END; h++) hours.push(h);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col" style={{ height: "calc(100vh - 260px)", minHeight: 500 }}>
+    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col" style={{ height: "calc(100vh - 280px)", minHeight: 350 }}>
       {/* All-day / header */}
       <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -389,28 +389,30 @@ function WeekView({
   for (let h = HOUR_START; h <= HOUR_END; h++) hours.push(h);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col" style={{ height: "calc(100vh - 260px)", minHeight: 520 }}>
-      {/* Days header */}
-      <div className="grid grid-cols-[48px_repeat(7,1fr)] border-b border-slate-100 bg-slate-50/50 shrink-0">
-        <div />
-        {days.map((d) => {
-          const isToday = isSameDay(d, now);
-          return (
-            <button
-              key={d.toISOString()}
-              onClick={() => onDayClick(d)}
-              className={`py-2.5 text-center border-l border-slate-100 hover:bg-white transition ${isToday ? "bg-blue-50" : ""}`}
-            >
-              <div className="text-[10px] uppercase tracking-wider text-slate-500">{WEEKDAYS[d.getDay() === 0 ? 6 : d.getDay() - 1]}</div>
-              <div className={`text-base font-bold ${isToday ? "text-blue-700" : "text-slate-900"}`}>{d.getDate()}</div>
-            </button>
-          );
-        })}
+    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col" style={{ height: "calc(100vh - 280px)", minHeight: 400 }}>
+      {/* Days header - scrollable on mobile */}
+      <div className="overflow-x-auto scrollbar-hide">
+        <div className="grid grid-cols-[48px_repeat(7,minmax(100px,1fr))] border-b border-slate-100 bg-slate-50/50 shrink-0 min-w-[600px]">
+          <div />
+          {days.map((d) => {
+            const isToday = isSameDay(d, now);
+            return (
+              <button
+                key={d.toISOString()}
+                onClick={() => onDayClick(d)}
+                className={`py-2.5 text-center border-l border-slate-100 hover:bg-white transition ${isToday ? "bg-blue-50" : ""}`}
+              >
+                <div className="text-[10px] uppercase tracking-wider text-slate-500">{WEEKDAYS[d.getDay() === 0 ? 6 : d.getDay() - 1]}</div>
+                <div className={`text-base font-bold ${isToday ? "text-blue-700" : "text-slate-900"}`}>{d.getDate()}</div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Body scroll */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-[48px_repeat(7,1fr)] relative" style={{ minHeight: (HOUR_END - HOUR_START + 1) * WEEK_HOUR_HEIGHT }}>
+      <div className="flex-1 overflow-auto">
+        <div className="grid grid-cols-[48px_repeat(7,minmax(100px,1fr))] relative min-w-[600px]" style={{ minHeight: (HOUR_END - HOUR_START + 1) * WEEK_HOUR_HEIGHT }}>
           {/* Hours column */}
           <div>
             {hours.map(h => (
@@ -514,23 +516,23 @@ function MonthView({
             <button
               key={d.toISOString()}
               onClick={() => onDayClick(d)}
-              className={`min-h-[100px] p-2 border-t border-l border-slate-100 text-left hover:bg-slate-50 transition flex flex-col ${
+              className={`min-h-[60px] sm:min-h-[100px] p-1.5 sm:p-2 border-t border-l border-slate-100 text-left hover:bg-slate-50 transition flex flex-col ${
                 !isCurMonth ? "bg-slate-50/40 opacity-60" : ""
               }`}
             >
               <div className="flex items-center justify-between">
                 <span
-                  className={`text-sm font-semibold w-6 h-6 grid place-items-center rounded-full ${
+                  className={`text-xs sm:text-sm font-semibold w-5 h-5 sm:w-6 sm:h-6 grid place-items-center rounded-full ${
                     isToday ? "bg-blue-600 text-white" : "text-slate-700"
                   }`}
                 >
                   {d.getDate()}
                 </span>
                 {list.length > 0 && (
-                  <span className="text-[10px] text-slate-500">{list.length}</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-500">{list.length}</span>
                 )}
               </div>
-              <div className="mt-1 space-y-0.5 flex-1">
+              <div className="mt-0.5 sm:mt-1 space-y-0.5 flex-1 hidden sm:block">
                 {list.slice(0, 3).map(a => {
                   const st = STATUS_STYLE[a.status] ?? STATUS_STYLE.SCHEDULED;
                   return (
@@ -542,6 +544,14 @@ function MonthView({
                 {list.length > 3 && (
                   <div className="text-[10px] text-slate-500 px-1">+{list.length - 3} más</div>
                 )}
+              </div>
+              {/* Mobile: dots indicator */}
+              <div className="mt-0.5 flex gap-0.5 flex-wrap sm:hidden">
+                {list.slice(0, 4).map((a, i) => {
+                  const st = STATUS_STYLE[a.status] ?? STATUS_STYLE.SCHEDULED;
+                  return <div key={i} className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />;
+                })}
+                {list.length > 4 && <span className="text-[8px] text-slate-400">+</span>}
               </div>
             </button>
           );

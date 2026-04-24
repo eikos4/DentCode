@@ -122,22 +122,22 @@ export function PatientsClient({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-3 anim-fade-up">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pacientes</h1>
-          <p className="text-sm text-slate-600 mt-1">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight">Pacientes</h1>
+          <p className="text-xs md:text-sm text-slate-600 mt-1">
             {counters.total} pacientes · <span className="text-sky-700 font-medium">+{counters.newThisMonth} este mes</span>
             {counters.overdueRecalls > 0 && <> · <span className="text-red-600 font-medium">{counters.overdueRecalls} con recall vencido</span></>}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={() => setModalOpen(true)}
-            className="px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white text-slate-900 font-semibold hover:border-blue-600 hover:text-blue-700 transition flex items-center gap-1.5"
+            className="px-2.5 md:px-3 py-2 text-xs md:text-sm rounded-lg border border-slate-200 bg-white text-slate-900 font-semibold hover:border-blue-600 hover:text-blue-700 transition flex items-center gap-1.5"
           >
-            <MessageCircle className="w-4 h-4" /> WhatsApp masivo
+            <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">WhatsApp masivo</span><span className="sm:hidden">WhatsApp</span>
           </button>
           <NewPatientDialog />
         </div>
@@ -145,29 +145,29 @@ export function PatientsClient({
 
       {/* Search + Sort */}
       <div className="flex items-center gap-2 flex-wrap anim-fade-up delay-100">
-        <div className="relative flex-1 min-w-[240px]">
+        <div className="relative flex-1 min-w-0">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar por nombre, RUT, teléfono, email..."
-            className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 text-sm"
+            placeholder="Buscar por nombre, RUT, teléfono..."
+            className="w-full pl-9 pr-3 py-2 md:py-2.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 text-sm"
           />
         </div>
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="px-3 py-2.5 border border-slate-200 rounded-lg bg-white text-sm focus:outline-none focus:border-blue-600"
+          className="px-2.5 md:px-3 py-2 md:py-2.5 border border-slate-200 rounded-lg bg-white text-xs md:text-sm focus:outline-none focus:border-blue-600 flex-shrink-0"
         >
-          <option value="name">Ordenar: Nombre A-Z</option>
+          <option value="name">Nombre A-Z</option>
           <option value="recent">Más recientes</option>
           <option value="lastvisit">Última visita</option>
           <option value="spent">Más gastado</option>
         </select>
       </div>
 
-      {/* Filter chips */}
-      <div className="flex items-center gap-2 flex-wrap anim-fade-up delay-200">
+      {/* Filter chips - scrollable on mobile */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible scrollbar-hide anim-fade-up delay-200">
         {FILTERS.map(f => {
           const Icon = f.icon;
           const active = filter === f.id;
@@ -222,8 +222,9 @@ export function PatientsClient({
         </div>
       )}
 
-      {/* Table */}
+      {/* Table / Cards */}
       <div className="rounded-xl border border-slate-200 bg-white overflow-hidden anim-fade-up delay-300">
+        {/* Desktop Header */}
         <div className="hidden md:grid grid-cols-[32px_1fr_180px_180px_140px_120px_60px] gap-3 px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide bg-slate-50 border-b border-slate-200">
           <label className="flex items-center">
             <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded" />
@@ -237,8 +238,8 @@ export function PatientsClient({
         </div>
 
         {filtered.length === 0 ? (
-          <div className="p-12 text-center">
-            <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <div className="p-8 md:p-12 text-center">
+            <Users className="w-10 h-10 md:w-12 md:h-12 text-slate-300 mx-auto mb-3" />
             <p className="text-sm font-medium text-slate-700">Sin resultados</p>
             <p className="text-xs text-slate-500 mt-1">Ajusta los filtros o crea un nuevo paciente.</p>
           </div>
@@ -292,13 +293,107 @@ function PatientRow({
 
   return (
     <li className="relative group hover:bg-slate-50/70 transition">
-      <div className="md:grid md:grid-cols-[32px_1fr_180px_180px_140px_120px_60px] gap-3 px-4 py-3 items-center flex flex-wrap">
+      {/* Mobile Card Layout */}
+      <div className="md:hidden p-3">
+        <div className="flex items-start gap-3">
+          {/* Checkbox */}
+          <label className="flex items-center pt-1" onClick={(e) => e.stopPropagation()}>
+            <input type="checkbox" checked={checked} onChange={onToggle} className="rounded" />
+          </label>
+
+          {/* Main content */}
+          <div className="flex-1 min-w-0">
+            {/* Name and actions row */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-sky-100 text-blue-700 grid place-items-center text-xs font-bold shrink-0">
+                  {initials}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <Link href={`/pacientes/${p.id}`} className="font-medium text-sm hover:text-blue-700 block truncate">
+                    {p.fullName}
+                  </Link>
+                  <div className="text-xs text-slate-500">
+                    {p.rut ?? "Sin RUT"}{age != null && ` · ${age}a`}
+                    {p.isNewThisMonth && <span className="ml-1.5 text-[10px] px-1 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">Nuevo</span>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-0.5 flex-shrink-0">
+                <Link href={`/pacientes/${p.id}`} className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100">
+                  <Eye className="w-4 h-4" />
+                </Link>
+                {waUrl && (
+                  <a href={waUrl} target="_blank" rel="noreferrer" className="p-1.5 rounded-md text-blue-700 hover:bg-blue-50">
+                    <MessageCircle className="w-4 h-4" />
+                  </a>
+                )}
+                <button onClick={onToggleActions} className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100">
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Contact info */}
+            <div className="mt-2 flex items-center gap-3 text-xs text-slate-600">
+              {p.phone ? (
+                <a href={waUrl!} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-slate-700 hover:text-blue-700">
+                  <Phone className="w-3 h-3" />
+                  <span className="truncate">{p.phone}</span>
+                </a>
+              ) : (
+                <span className="text-slate-400 italic">Sin teléfono</span>
+              )}
+              <span className="text-slate-300">·</span>
+              <span>{p.visits} visitas</span>
+            </div>
+
+            {/* Visits row */}
+            <div className="mt-1 text-xs text-slate-600">
+              <span className="text-slate-400">Última:</span>{" "}
+              <span className="font-medium">{relative(p.lastVisitAt)}</span>
+              {p.nextAppointmentAt && (
+                <span className="ml-2 text-blue-700">
+                  <span className="text-slate-400">Próx:</span>{" "}
+                  <span className="font-medium">{fmtDate(p.nextAppointmentAt)}</span>
+                </span>
+              )}
+            </div>
+
+            {/* Alerts and spent row */}
+            <div className="mt-2 flex items-center justify-between">
+              <div className="flex items-center gap-1 flex-wrap">
+                {alerts.slice(0, 3).map((a, i) => {
+                  const Icon = a.icon;
+                  return (
+                    <span
+                      key={i}
+                      title={a.title ?? a.label}
+                      className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border ${a.color}`}
+                    >
+                      <Icon className="w-3 h-3" />
+                      {a.label}
+                    </span>
+                  );
+                })}
+                {alerts.length > 3 && <span className="text-[10px] text-slate-400">+{alerts.length - 3}</span>}
+              </div>
+              <div className="font-semibold text-sm">{fmtCLP(p.totalSpent)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Table Layout */}
+      <div className="hidden md:grid md:grid-cols-[32px_1fr_180px_180px_140px_120px_60px] gap-3 px-4 py-3 items-center">
         <label className="flex items-center" onClick={(e) => e.stopPropagation()}>
           <input type="checkbox" checked={checked} onChange={onToggle} className="rounded" />
         </label>
 
         {/* Paciente */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-sky-100 text-blue-700 grid place-items-center text-sm font-bold shrink-0">
             {initials}
           </div>
