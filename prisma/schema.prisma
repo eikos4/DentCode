@@ -1,0 +1,432 @@
+// Dentcode - esquema multi-clínica (Postgres para prod y dev)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite no soporta enums, usaremos String con validación a nivel de aplicación
+// Roles válidos: SUPER_ADMIN, CLINIC_ADMIN, CLINIC_STAFF, DENTIST, PATIENT
+
+model Clinic {
+  id          String   @id @default(cuid())
+  name        String
+  rut         String?  @unique
+  logoUrl     String?
+  address     String?
+  city        String?
+  commune     String?
+  region      String?
+  phone       String?
+  email       String?
+  plan        String   @default("trial") // trial | clinic | enterprise
+  planEndsAt  DateTime?
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  dentists    Dentist[]
+  staff       User[]
+  locations   ClinicLocation[]
+  services    ClinicService[]
+  patients    Patient[]
+  appointments Appointment[]
+  
+  @@index([isActive])
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String?
+  role          String   @default("DENTIST") // SUPER_ADMIN | CLINIC_ADMIN | CLINIC_STAFF | DENTIST | PATIENT
+  
+  // Relaciones polimórficas
+  clinicId      String?
+  dentistId     String?  @unique
+  patientId     String?  @unique
+  
+  isActive      Boolean  @default(true)
+  lastLoginAt   DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relaciones
+  clinic        Clinic?  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  dentist       Dentist? @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+  patient       Patient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  @@index([email, isActive])
+  @@index([role, clinicId])
+}
+
+model Dentist {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String?        // Legacy - mantener por compatibilidad
+  fullName      String
+  slug          String?        @unique // URL pública: /dentista/camila-rojas
+  photoUrl      String?        // Foto de perfil pública
+  rut           String?        // RUT chileno
+  licenseNumber String?        // N° registro superintendencia
+  phone         String?
+  specialty     String?        // Odontología general, ortodoncia, etc.
+  bio           String?
+  isPublished   Boolean        @default(false) // Perfil visible en /buscar
+  
+  // Multi-clínica
+  clinicId      String?        // Si pertenece a una clínica
+  isActive      Boolean        @default(true)
+  
+  // Autenticación y verificación
+  emailVerified Boolean        @default(false)
+  verificationStatus String    @default("pending") // pending | verified | rejected
+  verificationToken String?    // Token para verificación de email
+  resetToken       String?     // Token para reset de contraseña
+  
+  // Onboarding
+  onboardingStep   Int         @default(0) // 0-5 pasos del wizard
+  onboardingCompleted Boolean @default(false)
+  
+  // Plan y facturación
+  plan             String      @default("trial") // trial | dentist | clinic
+  planEndsAt       DateTime?  // Fin de prueba gratuita
+  
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  lastLoginAt      DateTime?
+  
+  // Relaciones
+  user            User?
+  clinic          Clinic?      @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patients         Patient[]
+  appointments     Appointment[]
+  locations        ClinicLocation[]
+  verificationDocs VerificationDocument[]
+  reviews          Review[]
+  reviewRequests   ReviewRequest[]
+  publicProfile    PublicProfile?
+  weeklySchedule   WeeklySchedule[]
+  services         ServiceOffering[]
+  
+  @@index([clinicId, isActive])
+  @@index([email, isActive])
+}
+
+model WeeklySchedule {
+  id         String   @id @default(cuid())
+  dentistId  String
+  locationId String?
+  dayOfWeek  Int      // 0=Dom, 1=Lun, ..., 6=Sáb
+  openTime   String   // "09:00"
+  closeTime  String   // "18:00"
+  slotMinutes Int     @default(30)
+  enabled    Boolean  @default(true)
+  dentist    Dentist  @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+
+  @@index([dentistId, dayOfWeek])
+}
+
+model ServiceOffering {
+  id         String   @id @default(cuid())
+  dentistId  String
+  name       String   // "Limpieza dental"
+  description String?
+  durationMin Int     @default(30)
+  priceCLP   Int?
+  active     Boolean  @default(true)
+  order      Int      @default(0)
+  dentist    Dentist  @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+
+  @@index([dentistId, active])
+}
+
+model ReviewRequest {
+  id            String    @id @default(cuid())
+  dentistId     String
+  appointmentId String?   @unique
+  patientName   String
+  patientPhone  String?
+  patientEmail  String?
+  token         String    @unique @default(cuid())
+  submittedAt   DateTime?
+  reviewId      String?   @unique
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime?
+  dentist       Dentist   @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+
+  @@index([dentistId, createdAt])
+}
+
+model ClinicLocation {
+  id          String        @id @default(cuid())
+  dentistId   String?       // Legacy - mantener compatibilidad
+  clinicId    String?       // Multi-clínica
+  name        String
+  address     String?
+  city        String?
+  commune     String?       // Comuna específica
+  region      String?       // Región de Chile
+  lat         Float?        // Latitud para mapa
+  lng         Float?        // Longitud para mapa
+  phone       String?       // Teléfono de la sede
+  hours       String?       // Horarios (JSON string)
+  isActive    Boolean       @default(true)
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  dentist     Dentist?      @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+  clinic      Clinic?       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+  
+  @@index([clinicId, isActive])
+  @@index([dentistId])
+}
+
+model VerificationDocument {
+  id        String   @id @default(cuid())
+  dentistId String
+  type      String   // license | degree | id_card | other
+  url       String   // URL del archivo (S3/local)
+  status    String   @default("pending") // pending | approved | rejected
+  notes     String?  // Notas del revisor
+  createdAt DateTime @default(now())
+  dentist   Dentist  @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  dentistId String
+  patientName String // Nombre del paciente (público)
+  rating    Int      // 1-5 stars
+  comment   String?
+  treatment String? // Tipo de tratamiento
+  date      DateTime @default(now())
+  verified  Boolean  @default(false) // Si es paciente real (con token)
+  published Boolean  @default(false) // Visible públicamente
+  dentist   Dentist  @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+
+  @@index([dentistId, published, date])
+}
+
+model PublicProfile {
+  id          String   @id @default(cuid())
+  dentistId   String   @unique
+  bioPublic   String?  // Bio pública
+  photos      String?  // JSON array de URLs de fotos
+  services    String?  // JSON array de servicios
+  languages   String?  // JSON array de idiomas
+  education   String?  // JSON array de formación académica
+  experience  String?  // Años de experiencia
+  acceptsInsurance Boolean @default(false)
+  insuranceProviders String? // JSON array de aseguradoras
+  paymentMethods String? // JSON array de métodos de pago
+  emergencyCare Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  dentist     Dentist  @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+}
+
+model ClinicService {
+  id          String   @id @default(cuid())
+  clinicId    String
+  name        String   // "Limpieza dental"
+  description String?
+  durationMin Int     @default(30)
+  priceCLP    Int?
+  category    String? // preventivo | restaurativo | ortodoncia | cirugia
+  active      Boolean  @default(true)
+  order       Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  
+  @@index([clinicId, active])
+}
+
+model Patient {
+  id                String         @id @default(cuid())
+  dentistId         String
+  clinicId          String?        // Si pertenece a clínica
+  fullName          String
+  rut               String?
+  birthDate         DateTime?
+  gender            String?        // F | M | O
+  phone             String?        // +56 9 XXXX XXXX
+  email             String?
+  address           String?
+  city              String?
+  commune           String?
+  occupation        String?
+  referredBy        String?        // cómo nos conoció
+  emergencyContact  String?        // nombre + teléfono
+  bloodType         String?        // A+, A-, B+, B-, AB+, AB-, O+, O-
+  allergies         String?
+  medicalHistory    String?
+  medications       String?        // medicación habitual
+  notes             String?
+  createdAt         DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  // Relaciones
+  user            User?
+  clinic          Clinic?        @relation(fields: [clinicId], references: [id])
+  dentist         Dentist        @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+  appointments    Appointment[]
+  clinicalNotes   ClinicalNote[]
+  toothRecords    ToothRecord[]
+  attachments     Attachment[]
+  recalls         Recall[]
+  labUploads      LabUpload[]     // Radiografías subidas por laboratorios
+
+  @@index([dentistId, clinicId])
+  @@index([clinicId, createdAt])
+}
+
+model Attachment {
+  id            String   @id @default(cuid())
+  patientId     String
+  appointmentId String?
+  category      String   // radiograph | photo | document | consent | prescription | budget
+  subtype       String?  // panoramic | periapical | bitewing | intraoral | extraoral
+  url           String   // ruta pública (/uploads/<patientId>/<file>)
+  filename      String
+  mime          String
+  sizeBytes     Int
+  note          String?
+  takenAt       DateTime?
+  createdAt     DateTime @default(now())
+  patient       Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, createdAt])
+}
+
+model Recall {
+  id         String    @id @default(cuid())
+  patientId  String
+  type       String    // limpieza | control | ortodoncia | endodoncia | otro
+  dueDate    DateTime
+  notes      String?
+  doneAt     DateTime?
+  createdAt  DateTime  @default(now())
+  patient    Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, dueDate])
+}
+
+model Appointment {
+  id           String             @id @default(cuid())
+  dentistId    String
+  patientId    String
+  clinicId     String?            // Multi-clínica
+  locationId   String?
+  startAt      DateTime
+  endAt        DateTime
+  treatment    String?            // ej: "Limpieza", "Endodoncia"
+  status       String             @default("SCHEDULED") 
+  notes        String?
+  priceCLP     Int?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  
+  dentist      Dentist            @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+  patient      Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  clinic       Clinic?            @relation(fields: [clinicId], references: [id])
+  location     ClinicLocation?    @relation(fields: [locationId], references: [id])
+  messages     MessageLog[]
+
+  @@index([dentistId, startAt])
+  @@index([clinicId, startAt])
+}
+
+model ClinicalNote {
+  id         String   @id @default(cuid())
+  patientId  String
+  date       DateTime @default(now())
+  subjective String?
+  objective  String?
+  assessment String?
+  plan       String?
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+// Odontograma: un registro por diente/estado
+model ToothRecord {
+  id         String   @id @default(cuid())
+  patientId  String
+  toothCode  String   // FDI: 11..48, o deciduos 51..85
+  surface    String?  // M, D, O, V, L, I
+  condition  String   // caries, filling, crown, missing, endo, implant...
+  note       String?
+  updatedAt  DateTime @updatedAt
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, toothCode])
+}
+
+model MessageLog {
+  id            String      @id @default(cuid())
+  appointmentId String?
+  channel       String      // whatsapp | sms | email
+  direction     String      // out | in
+  to            String
+  template      String?
+  body          String
+  status        String      // queued | sent | delivered | read | failed
+  providerId    String?
+  createdAt     DateTime    @default(now())
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+}
+
+// Laboratorio Dental - puede subir radiografías
+model Laboratory {
+  id           String   @id @default(cuid())
+  name         String
+  rut          String   @unique  // RUT del laboratorio
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  address      String?
+  city         String?
+  contactName  String?  // Persona de contacto
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relaciones
+  uploads      LabUpload[]
+
+  @@index([rut, isActive])
+}
+
+// Uploads de radiografías desde laboratorios
+model LabUpload {
+  id          String   @id @default(cuid())
+  labId       String
+  patientRut  String   // RUT del paciente (para búsqueda)
+  patientId   String?  // Vinculación automática si existe
+  fileName    String
+  fileUrl     String   // /uploads/lab/<labId>/<filename>
+  fileType    String   // image/jpeg | image/png | application/dicom
+  category    String   @default("radiograph") // radiograph | photo | document
+  subtype     String?  // panoramic | periapical | bitewing | tomography
+  description String?  // Notas del laboratorio
+  isMatched   Boolean  @default(false) // Si se vinculó a un paciente
+  matchedAt   DateTime?
+  matchedBy   String?  // Quién aprobó la vinculación (userId)
+  createdAt   DateTime @default(now())
+
+  laboratory  Laboratory @relation(fields: [labId], references: [id], onDelete: Cascade)
+  patient     Patient?   @relation(fields: [patientId], references: [id])
+
+  @@index([patientRut, isMatched])
+  @@index([labId, createdAt])
+}

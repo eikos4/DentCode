@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { height: 100%; }
+body { @apply bg-background text-foreground antialiased; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+/* === Animaciones landing === */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-18px) rotate(3deg); }
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+  50%      { box-shadow: 0 0 0 14px rgba(37, 99, 235, 0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0.6; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.anim-slide-right { animation: slideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(var(--orbit-r, 120px)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(var(--orbit-r, 120px)) rotate(-360deg); }
+}
+@keyframes morph {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25%      { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50%      { border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%; }
+  75%      { border-radius: 60% 40% 60% 30% / 60% 30% 50% 60%; }
+}
+@keyframes slideBanner {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes typewriter {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+.anim-fade-up      { animation: fadeInUp 0.7s ease-out both; }
+.anim-fade         { animation: fadeIn 0.8s ease-out both; }
+.anim-float        { animation: float 5s ease-in-out infinite; }
+.anim-float-slow   { animation: floatSlow 7s ease-in-out infinite; }
+.anim-gradient     { background-size: 200% 200%; animation: gradientShift 8s ease infinite; }
+.anim-pulse-glow   { animation: pulseGlow 2.2s ease-out infinite; }
+.anim-slide-left   { animation: slideInLeft 0.6s ease-out both; }
+.anim-blink        { animation: blink 1.8s ease-in-out infinite; }
+.anim-scale-in     { animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.anim-shimmer      { background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,.15) 50%, transparent 75%); background-size: 200% 100%; animation: shimmer 2.5s infinite; }
+.anim-orbit        { animation: orbit var(--orbit-dur, 20s) linear infinite; }
+.anim-morph        { animation: morph 8s ease-in-out infinite; }
+.anim-banner       { animation: slideBanner 25s linear infinite; }
+.anim-pulse-ring   { animation: pulse-ring 2s ease-out infinite; }
+
+.delay-100 { animation-delay: .10s; }
+.delay-200 { animation-delay: .20s; }
+.delay-300 { animation-delay: .30s; }
+.delay-400 { animation-delay: .40s; }
+.delay-500 { animation-delay: .50s; }
+.delay-600 { animation-delay: .60s; }
+.delay-700 { animation-delay: .70s; }
+.delay-800 { animation-delay: .80s; }
+.delay-900 { animation-delay: .90s; }
+.delay-1000 { animation-delay: 1s; }
+
+/* Hover card lift reusable */
+.card-hover { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+.card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 30px -12px rgba(15, 23, 42, 0.15); }
+
+/* Glass card */
+.glass { backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); }
