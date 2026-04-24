@@ -16,7 +16,9 @@ services:
       - key: NODE_OPTIONS
         value: "--max-old-space-size=512"
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: dentcode-db
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: NEXT_PUBLIC_APP_URL
