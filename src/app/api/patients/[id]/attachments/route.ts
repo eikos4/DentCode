@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "../../../../../lib/prisma";
-import { getCurrentDentistId } from "../../../../../lib/utils";
-import { saveUpload } from "../../../../../lib/storage";
+import { prisma } from "@/lib/prisma";
+import { getCurrentDentistId } from "@/lib/utils";
+import { saveUpload } from "@/lib/storage";
 
 export const runtime = "nodejs";
 

@@ -8,7 +8,7 @@ import {
   MapPin, Cake, IdCard, AlertTriangle, Heart, Pill, Activity, Briefcase,
   MessageCircle, Sparkles, CheckCircle2, Eye, CalendarPlus, Loader2,
 } from "lucide-react";
-import { formatRut, isValidRut, cleanRut, formatPhone } from "../../../lib/rut";
+import { formatRut, isValidRut, cleanRut, formatPhone } from "@/lib/rut";
 
 type FormData = {
   fullName: string;

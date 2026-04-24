@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../../../lib/prisma";
-import { requireAuth, requireRole } from "../../../../../../lib/auth";
+import { prisma } from "@/lib/prisma";
+import { requireAuth, requireRole } from "@/lib/auth";
 
 // POST - Vincular radiografía a un paciente existente
 export async function POST(

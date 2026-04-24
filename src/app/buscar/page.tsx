@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { Search, MapPin, Star } from "lucide-react";
 
 interface SearchPageProps {

@@ -1,5 +1,5 @@
-import { getClinicFromAuth } from "../../../../lib/auth";
-import { prisma } from "../../../../lib/prisma";
+import { getClinicFromAuth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { ArrowLeft, Mail, Phone, Calendar, Users, Clock, Stethoscope, TrendingUp, Lock } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";

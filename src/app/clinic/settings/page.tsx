@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { getClinicFromAuth } from "../../../lib/auth";
-import { prisma } from "../../../lib/prisma";
+import { getClinicFromAuth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { ClinicSettingsForm } from "../../../components/clinic-settings-form";
 
 export default async function ClinicSettingsPage() {

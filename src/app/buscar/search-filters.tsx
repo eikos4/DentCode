@@ -206,14 +206,14 @@ export function SearchFilters() {
               {[5, 4, 3, 2, 1].map(rating => (
                 <button
                   key={rating}
-                  onClick={() => updateFilter("rating", filters.rating === rating ? "" : rating)}
+                  onClick={() => updateFilter("rating", filters.rating === String(rating) ? "" : String(rating))}
                   className={`px-3 py-1 rounded text-sm border transition ${
-                    filters.rating === rating
+                    filters.rating === String(rating)
                       ? "bg-blue-100 border-blue-300 text-blue-700"
                       : "bg-white border-slate-300 text-slate-600 hover:bg-slate-50"
                   }`}
                 >
-                  {rating}+ {"\u2605"}
+                  {rating}+ {"★"}
                 </button>
               ))}
             </div>

@@ -7,7 +7,7 @@ import {
   Cake, UserX, CalendarPlus, Copy, MoreVertical, X, Send, Check,
   ChevronDown, Users, UserPlus, Sparkles, Eye, CheckCircle2,
 } from "lucide-react";
-import { TEMPLATES, type TemplateId, getTemplate } from "../../../lib/whatsapp-templates";
+import { TEMPLATES, type TemplateId, getTemplate } from "@/lib/whatsapp-templates";
 import { NewPatientDialog } from "./new-patient";
 
 export type EnrichedPatient = {

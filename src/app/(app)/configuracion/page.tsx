@@ -1,5 +1,5 @@
-import { prisma } from "../../../lib/prisma";
-import { getDentistFromAuth } from "../../../lib/auth";
+import { prisma } from "@/lib/prisma";
+import { getDentistFromAuth } from "@/lib/auth";
 import { ConfigClient } from "./config-client";
 
 export const dynamic = "force-dynamic";

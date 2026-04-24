@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { prisma } from "../../../../lib/prisma";
-import { requireLabAuth } from "../../../../lib/lab-auth";
-import { saveUpload } from "../../../../lib/storage";
+import { prisma } from "@/lib/prisma";
+import { requireLabAuth } from "@/lib/lab-auth";
+import { saveUpload } from "@/lib/storage";
 
 export async function GET(req: NextRequest) {
   try {

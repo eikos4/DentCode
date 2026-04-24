@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { RegisterFormClinic } from "../../components/register-form-clinic";
-import { getAuthUser } from "../../lib/auth";
+import { RegisterClinicForm } from "../../components/register-form-clinic";
+import { getAuthUser } from "@/lib/auth";
 
 export default async function RegistroClinicaPage() {
   const user = await getAuthUser();
@@ -14,7 +14,7 @@ export default async function RegistroClinicaPage() {
           <p className="text-gray-500 mt-2">Crea la cuenta de tu clinica dental en Dentcode</p>
         </div>
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <RegisterFormClinic />
+          <RegisterClinicForm />
         </div>
         <p className="text-center text-sm text-gray-500 mt-4">
           Ya tienes cuenta?{" "}

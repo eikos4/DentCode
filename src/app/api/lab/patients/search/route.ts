@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
-import { prisma } from "../../../../../lib/prisma";
-import { requireLabAuth } from "../../../../../lib/lab-auth";
+import { prisma } from "@/lib/prisma";
+import { requireLabAuth } from "@/lib/lab-auth";
 
 export async function GET(req: NextRequest) {
   try {

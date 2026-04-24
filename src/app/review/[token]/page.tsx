@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { prisma } from "../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { ReviewForm } from "./review-form";
 import { CheckCircle2, Star } from "lucide-react";
 

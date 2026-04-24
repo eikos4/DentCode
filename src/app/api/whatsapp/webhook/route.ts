@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
-import { prisma } from "../../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "dentcode-verify";
 

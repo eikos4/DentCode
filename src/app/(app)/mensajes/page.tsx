@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { getAuthUser } from "../../../lib/auth";
-import { prisma } from "../../../lib/prisma";
+import { getAuthUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { MessageCircle, Send, Clock } from "lucide-react";
-import { formatDate } from "../../../lib/utils";
+import { formatDate } from "@/lib/utils";
 
 export default async function MensajesPage() {
   const user = await getAuthUser();

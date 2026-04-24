@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "../../../../../../lib/prisma";
-import { getClinicFromAuth } from "../../../../../../lib/auth";
+import { prisma } from "@/lib/prisma";
+import { getClinicFromAuth } from "@/lib/auth";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {

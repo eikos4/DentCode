@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LoginFormClinic } from "../../components/login-form-clinic";
-import { getAuthUser } from "../../lib/auth";
+import { LoginForm } from "../../components/login-form-clinic";
+import { getAuthUser } from "@/lib/auth";
 
 export default async function LoginClinicaPage() {
   const user = await getAuthUser();
@@ -14,7 +14,7 @@ export default async function LoginClinicaPage() {
           <p className="text-gray-500 mt-2">Accede al panel de tu clinica</p>
         </div>
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <LoginFormClinic />
+          <LoginForm />
         </div>
         <p className="text-center text-sm text-gray-500 mt-4">
           No tienes cuenta?{" "}

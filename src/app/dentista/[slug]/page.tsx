@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { prisma } from "../../../lib/prisma";
-import { getNextAvailableSlot } from "../../../lib/availability";
-import { formatCLP } from "../../../lib/utils";
+import { prisma } from "@/lib/prisma";
+import { getNextAvailableSlot } from "@/lib/availability";
+import { formatCLP } from "@/lib/utils";
 import {
   ShieldCheck, Star, MapPin, Clock, Phone, Calendar,
   Globe, CheckCircle2, ArrowLeft, GraduationCap, Briefcase, MessageCircle,

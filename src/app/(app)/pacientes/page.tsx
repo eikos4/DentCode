@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { getAuthUser } from "../../../lib/auth";
-import { prisma } from "../../../lib/prisma";
+import { getAuthUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { PatientsClient, type EnrichedPatient } from "./patients-client";
 
 export default async function PacientesPage({ searchParams }: { searchParams: { q?: string; filter?: string; sort?: string } }) {

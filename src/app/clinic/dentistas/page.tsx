@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { getClinicFromAuth } from "../../../lib/auth";
-import { prisma } from "../../../lib/prisma";
+import { getClinicFromAuth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
 import { DentistCard } from "../../../components/dentist-card";

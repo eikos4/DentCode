@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { formatTime } from "../../../lib/utils";
+import { formatTime } from "@/lib/utils";
 import { Calendar, Clock, AlertTriangle, Filter, Plus, Search, ChevronLeft, ChevronRight, User } from "lucide-react";
 import Link from "next/link";
 

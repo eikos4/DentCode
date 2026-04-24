@@ -6,7 +6,7 @@ import {
   ChevronRight, ChevronLeft, Check, AlertCircle, Loader2, Eye, EyeOff,
   Calendar, Clock, CreditCard, Building, Stethoscope, Award,
 } from "lucide-react";
-import { formatRut, isValidRut, cleanRut } from "../../lib/rut";
+import { formatRut, isValidRut, cleanRut } from "@/lib/rut";
 
 const SPECIALTIES = [
   "Odontología general",

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "../../../../lib/prisma";
-import { getAuthUser } from "../../../../lib/auth";
+import { prisma } from "@/lib/prisma";
+import { getAuthUser } from "@/lib/auth";
 
 const daySchema = z.object({
   dayOfWeek: z.number().int().min(0).max(6),

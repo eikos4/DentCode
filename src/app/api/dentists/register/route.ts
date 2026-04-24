@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "../../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { generateUniqueSlug } from "../../../../lib/slug";
+import { generateUniqueSlug } from "@/lib/slug";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-change-in-production";
 
