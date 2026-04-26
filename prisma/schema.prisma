@@ -35,6 +35,7 @@ model Clinic {
   services    ClinicService[]
   patients    Patient[]
   appointments Appointment[]
+  labOrders   LabOrder[]
   
   @@index([isActive])
 }
@@ -113,6 +114,7 @@ model Dentist {
   publicProfile    PublicProfile?
   weeklySchedule   WeeklySchedule[]
   services         ServiceOffering[]
+  labOrders        LabOrder[]
   
   @@index([clinicId, isActive])
   @@index([email, isActive])
@@ -278,6 +280,8 @@ model Patient {
   createdAt         DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   
+  insurance       String?        // Fonasa | Isapre | Particular
+
   // Relaciones
   user            User?
   clinic          Clinic?        @relation(fields: [clinicId], references: [id])
@@ -288,6 +292,7 @@ model Patient {
   attachments     Attachment[]
   recalls         Recall[]
   labUploads      LabUpload[]     // Radiografías subidas por laboratorios
+  labOrders       LabOrder[]
 
   @@index([dentistId, clinicId])
   @@index([clinicId, createdAt])
@@ -405,6 +410,7 @@ model Laboratory {
 
   // Relaciones
   uploads      LabUpload[]
+  labOrders    LabOrder[]
 
   @@index([rut, isActive])
 }
@@ -428,6 +434,7 @@ model LabUpload {
 
   laboratory  Laboratory @relation(fields: [labId], references: [id], onDelete: Cascade)
   patient     Patient?   @relation(fields: [patientId], references: [id])
+  orderResult LabOrder?  @relation("OrderResult")
 
   @@index([patientRut, isMatched])
   @@index([labId, createdAt])
@@ -445,3 +452,27 @@ model ContactMessage {
   createdAt   DateTime @default(now())
 }
 
+// Órdenes de trabajo enviadas a laboratorios
+model LabOrder {
+  id          String    @id @default(cuid())
+  dentistId   String
+  clinicId    String?
+  patientId   String
+  labId       String?
+  examType    String    // panoramic | periapical | model | other
+  notes       String?
+  status      String    @default("PENDING") // PENDING | IN_PROGRESS | READY | COMPLETED | CANCELLED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  dentist     Dentist   @relation(fields: [dentistId], references: [id], onDelete: Cascade)
+  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  clinic      Clinic?   @relation(fields: [clinicId], references: [id])
+  laboratory  Laboratory? @relation(fields: [labId], references: [id])
+  result      LabUpload?  @relation("OrderResult", fields: [resultId], references: [id])
+  resultId    String?   @unique
+
+  @@index([dentistId, createdAt])
+  @@index([clinicId, status])
+  @@index([patientId])
+}
