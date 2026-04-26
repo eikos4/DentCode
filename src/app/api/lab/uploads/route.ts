@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Se requiere archivo y RUT del paciente" }, { status: 400 });
     }
 
-    const { url, filename, sizeBytes, mime } = await saveUpload({ patientId: `lab/${lab.labId}`, file });
+    const { url, filename, sizeBytes, mime } = await saveUpload({ id: lab.labId, file, category: "labs" });
 
     const patient = await prisma.patient.findFirst({ where: { rut: patientRut } });
 
