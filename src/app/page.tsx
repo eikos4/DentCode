@@ -17,32 +17,36 @@ export default function Landing() {
   return (
     <main className="min-h-screen bg-white text-slate-900 antialiased overflow-x-hidden">
       {/* Top bar */}
-      <div className="bg-slate-950 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-2 text-xs flex items-center justify-center gap-1.5 flex-wrap text-center leading-tight">
+      <div className="bg-slate-950 text-white relative z-[60]">
+        <div className="max-w-7xl mx-auto px-4 py-2 text-[10px] sm:text-xs flex items-center justify-center gap-1 sm:gap-1.5 flex-wrap text-center leading-tight">
           <Sparkles className="w-3 h-3 text-sky-400 flex-shrink-0" />
-          <span className="whitespace-nowrap">Parte del ecosistema</span>
-          <a href="https://www.leucode.cl" target="_blank" rel="noreferrer" className="font-bold text-sky-300 hover:underline whitespace-nowrap">Leucode.IA</a>
-          <span className="whitespace-nowrap text-slate-400">· Salud digital con IA para Chile y LATAM</span>
+          <span className="opacity-80">Parte del ecosistema</span>
+          <a href="https://www.leucode.cl" target="_blank" rel="noreferrer" className="font-bold text-sky-300 hover:underline">Leucode.IA</a>
+          <span className="hidden sm:inline opacity-40">|</span>
+          <span className="opacity-60">Salud digital con IA para Chile</span>
         </div>
       </div>
 
       {/* Nav */}
-      <header className="sticky top-0 z-50 glass bg-white/70 border-b border-slate-200/60">
-        <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 grid place-items-center text-white font-black shadow-lg shadow-blue-500/25">D</div>
-            <span className="font-bold text-lg tracking-tight">Dent<span className="text-blue-600">Code</span></span>
+      <header className="sticky top-0 z-50 glass bg-white/80 border-b border-slate-200/60 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 grid place-items-center text-white font-black shadow-lg shadow-blue-500/25 text-sm sm:text-base">D</div>
+            <span className="font-bold text-base sm:text-lg tracking-tight">Dent<span className="text-blue-600">Code</span></span>
           </div>
-          <nav className="hidden md:flex items-center gap-7 text-sm text-slate-600">
+          
+          <nav className="hidden lg:flex items-center gap-7 text-sm text-slate-600 font-medium">
             <a href="#funciones" className="hover:text-blue-600 transition">Funciones</a>
             <a href="#plataforma" className="hover:text-blue-600 transition">Plataforma</a>
             <a href="#precios" className="hover:text-blue-600 transition">Precios</a>
-            <a href="#vision" className="hover:text-blue-600 transition">Visión</a>
             <a href="#contacto" className="hover:text-blue-600 transition">Contacto</a>
           </nav>
-          <div className="flex items-center gap-2">
-            <Link href="/login" className="inline-flex px-3 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition">Ingresar</Link>
-            <Link href="/registro" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white text-sm font-semibold hover:shadow-lg hover:shadow-blue-500/30 hover:scale-[1.02] transition-all">Empezar gratis</Link>
+
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            <Link href="/login" className="px-3 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:text-blue-600 transition">Ingresar</Link>
+            <Link href="/registro" className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-blue-600 text-white text-[11px] sm:text-sm font-bold hover:bg-blue-700 shadow-md shadow-blue-500/20 active:scale-95 transition-all">
+              Probar Gratis
+            </Link>
           </div>
         </div>
       </header>

@@ -46,9 +46,9 @@ export function SidebarAuth(props: SidebarAuthProps) {
   return (
     <>
       {/* ===== MOBILE TOPBAR ===== */}
-      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-white border-b border-slate-200">
+      <header className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 bg-white border-b border-slate-200">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-primary grid place-items-center text-white font-bold text-sm">D</div>
+          <div className="w-7 h-7 rounded-md bg-blue-600 grid place-items-center text-white font-bold text-sm">D</div>
           <span className="font-semibold text-sm">Dentcode</span>
         </Link>
         <button
