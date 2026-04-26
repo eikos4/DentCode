@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     const category = (formData.get("category") as string) || "radiograph";
     const subtype = formData.get("subtype") as string | null;
     const description = formData.get("description") as string | null;
+    const orderId = formData.get("orderId") as string | null;
 
     if (!file || !patientRut) {
       return NextResponse.json({ error: "Se requiere archivo y RUT del paciente" }, { status: 400 });
@@ -52,6 +53,17 @@ export async function POST(req: NextRequest) {
         matchedAt: patient ? new Date() : null,
       },
     });
+
+    // Si hay una orden, vincularla y marcarla como completada
+    if (orderId) {
+      await prisma.labOrder.update({
+        where: { id: orderId },
+        data: { 
+          status: "COMPLETED",
+          resultId: upload.id
+        }
+      });
+    }
 
     return NextResponse.json(upload, { status: 201 });
   } catch (error: any) {

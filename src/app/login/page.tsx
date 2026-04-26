@@ -1,13 +1,22 @@
+import { redirect } from "next/navigation";
+import { getAuthUser } from "@/lib/auth";
 import Link from "next/link";
+import { ShieldCheck, Zap, TrendingUp, ArrowLeft, FlaskConical, Building2, Stethoscope } from "lucide-react";
 import { LoginForm } from "./login-form";
-import { ShieldCheck, Zap, TrendingUp, ArrowLeft, FlaskConical, Building2 } from "lucide-react";
 
 export const metadata = {
   title: "Iniciar sesión — DentCode",
   description: "Accede a tu consultorio digital DentCode.",
 };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const user = await getAuthUser();
+  if (user) {
+    const role = user.role || (user.dentistId ? "DENTIST" : null);
+    if (role === "DENTIST" || role === "SUPER_ADMIN") {
+      redirect("/dashboard");
+    }
+  }
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-white">
       {/* ========== LADO IZQUIERDO: Formulario ========== */}
@@ -37,9 +46,24 @@ export default function LoginPage() {
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
               Hola de nuevo 👋
             </h1>
-            <p className="mt-2 text-slate-500">
+            <p className="mt-2 text-slate-500 text-sm">
               Ingresa a tu cuenta para continuar gestionando tu consulta.
             </p>
+          </div>
+
+          {/* Selector de tipo de cuenta (Mobile friendly) */}
+          <div className="flex p-1 bg-slate-100 rounded-xl mb-8">
+            <button className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-lg bg-white shadow-sm text-blue-600 transition-all">
+              <Stethoscope className="w-4 h-4" />
+              Dentista
+            </button>
+            <Link 
+              href="/login-clinica"
+              className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-all"
+            >
+              <Building2 className="w-4 h-4" />
+              Clínica
+            </Link>
           </div>
 
           <LoginForm />

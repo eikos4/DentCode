@@ -28,7 +28,12 @@ export function LoginForm() {
       const data = await res.json();
 
       if (res.ok) {
-        router.push("/dashboard");
+        // Redirigir según el rol
+        if (data.role === "SUPER_ADMIN") {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
         router.refresh();
       } else {
         setError(data.error || "Credenciales incorrectas. Intenta nuevamente.");

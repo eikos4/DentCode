@@ -69,44 +69,44 @@ export function ClinicNav({ role }: ClinicNavProps) {
   ].filter(item => !item.adminOnly || role === "CLINIC_ADMIN");
 
   return (
-    <div className="flex items-center gap-6">
-      <nav className="hidden md:flex items-center gap-1">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 space-y-1">
         {navigation.map((item) => {
           const Icon = item.icon;
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 item.current
-                  ? "bg-blue-50 text-blue-700"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  ? "bg-blue-50 text-blue-700 shadow-sm shadow-blue-100/50"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className={`w-4.5 h-4.5 transition-colors ${item.current ? "text-blue-600" : "text-slate-400"}`} />
               {item.name}
             </Link>
           );
         })}
-      </nav>
+      </div>
       
-      <div className="flex items-center gap-2">
+      <div className="pt-4 border-t border-slate-100 space-y-1">
         {role === "CLINIC_ADMIN" && (
           <Link
             href="/clinic/dentistas/invite"
-            className="px-3 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-all duration-200"
           >
-            <UserPlus className="w-4 h-4" />
-            Invitar
+            <UserPlus className="w-4.5 h-4.5" />
+            Invitar Dentista
           </Link>
         )}
         
         <Link
           href="/login"
-          className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors flex items-center gap-2"
+          className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200"
         >
-          <LogOut className="w-4 h-4" />
-          Salir
+          <LogOut className="w-4.5 h-4.5" />
+          Cerrar Sesión
         </Link>
       </div>
     </div>

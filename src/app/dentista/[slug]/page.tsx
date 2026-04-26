@@ -1,36 +1,29 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getNextAvailableSlot } from "@/lib/availability";
-import { formatCLP } from "@/lib/utils";
-import {
-  ShieldCheck, Star, MapPin, Clock, Phone, Calendar,
-  Globe, CheckCircle2, ArrowLeft, GraduationCap, Briefcase, MessageCircle,
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { 
+  MapPin, Star, Building2, ShieldCheck, Calendar, 
+  MessageCircle, Stethoscope, Instagram, Facebook, 
+  Award, Clock, Phone, Mail, ChevronRight, Share2, 
+  Heart, CheckCircle2, Languages, GraduationCap, User
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-const DAYS_ES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+function safeParse<T>(raw: string | null | undefined, fallback: T): T {
+  if (!raw) return fallback;
+  try { return JSON.parse(raw) as T; } catch { return fallback; }
+}
 
-export default async function PublicProfilePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-
+export default async function DentistProfilePage({ params }: { params: { slug: string } }) {
   const dentist = await prisma.dentist.findUnique({
-    where: { slug },
+    where: { slug: params.slug },
     include: {
       publicProfile: true,
-      locations: true,
+      locations: { where: { isActive: true } },
+      clinic: true,
       services: { where: { active: true }, orderBy: { order: "asc" } },
-      weeklySchedule: { orderBy: { dayOfWeek: "asc" } },
-      reviews: {
-        where: { published: true },
-        orderBy: { date: "desc" },
-        take: 10,
-      },
+      reviews: { where: { published: true }, orderBy: { date: "desc" } },
     },
   });
 
@@ -38,404 +31,393 @@ export default async function PublicProfilePage({
     notFound();
   }
 
-  // Stats de reviews
-  const allReviews = await prisma.review.findMany({
-    where: { dentistId: dentist.id, published: true },
-    select: { rating: true },
-  }) as { rating: number }[];
-  const ratingAvg =
-    allReviews.length > 0
-      ? allReviews.reduce((s, r) => s + r.rating, 0) / allReviews.length
-      : 0;
-  const reviewCount = allReviews.length;
+  const rating = dentist.reviews.length > 0 
+    ? (dentist.reviews.reduce((a, b) => a + b.rating, 0) / dentist.reviews.length).toFixed(1) 
+    : null;
 
-  const nextSlot = await getNextAvailableSlot(dentist.id);
-
-  // JSON fields parseados
-  const photos = safeParse<string[]>(dentist.publicProfile?.photos, []);
   const languages = safeParse<string[]>(dentist.publicProfile?.languages, ["Español"]);
   const education = safeParse<string[]>(dentist.publicProfile?.education, []);
   const paymentMethods = safeParse<string[]>(dentist.publicProfile?.paymentMethods, []);
-  const insurances = safeParse<string[]>(dentist.publicProfile?.insuranceProviders, []);
+  const insurance = safeParse<string[]>(dentist.publicProfile?.insuranceProviders, []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Top nav */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/buscar" className="text-sm text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
-            <ArrowLeft className="w-4 h-4" /> Volver a búsqueda
-          </Link>
+    <div className="min-h-screen bg-slate-50 pb-20">
+      {/* ══ Header ══ */}
+      <header className="sticky top-0 z-50 glass bg-white/80 border-b border-slate-200/60 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-blue-600 to-sky-500 grid place-items-center text-white font-bold text-sm">D</div>
-            <span className="font-semibold text-slate-900 text-sm">DentCode</span>
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 grid place-items-center text-white font-black shadow-lg shadow-blue-500/25 text-xs md:sm">D</div>
+            <span className="font-bold text-base md:text-lg tracking-tight text-slate-900">Dent<span className="text-blue-600">Code</span></span>
           </Link>
+          <div className="flex items-center gap-2 md:gap-4">
+             <Link href="/buscar" className="hidden sm:block text-xs md:text-sm font-medium text-slate-500 hover:text-blue-600 transition">Volver a buscar</Link>
+             <Link href={`/agendar/${dentist.id}`} className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white rounded-lg text-xs md:text-sm font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-600/20">
+              Agendar
+             </Link>
+          </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-blue-600 via-sky-500 to-blue-600 text-white">
-        <div className="container mx-auto px-4 py-10 md:py-14">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            {/* Foto */}
-            <div className="w-28 h-28 md:w-32 md:h-32 rounded-full bg-white/10 border-4 border-white/30 overflow-hidden backdrop-blur-sm flex-shrink-0 grid place-items-center">
-              {dentist.photoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={dentist.photoUrl} alt={dentist.fullName} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-4xl font-bold">
-                  {dentist.fullName.split(" ").map((s) => s[0]).slice(0, 2).join("")}
-                </span>
+      <div className="relative bg-slate-900 text-white overflow-hidden pt-8 md:pt-12 pb-24 md:pb-40">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-blue-600 blur-[80px] md:blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-[200px] md:w-[300px] h-[200px] md:h-[300px] bg-sky-500 blur-[60px] md:blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4" />
+        </div>
+        
+        <div className="relative max-w-5xl mx-auto px-4 md:px-6">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-end text-center md:text-left">
+            {/* Photo */}
+            <div className="relative shrink-0">
+              <div className="w-32 h-32 md:w-56 md:h-56 rounded-2xl md:rounded-3xl overflow-hidden border-2 md:border-4 border-white/10 shadow-2xl bg-slate-800">
+                {dentist.photoUrl ? (
+                  <img src={dentist.photoUrl} alt={dentist.fullName} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-slate-600">
+                    <User className="w-12 h-12 md:w-20 md:h-20 opacity-20" />
+                  </div>
+                )}
+              </div>
+              {dentist.verificationStatus === "verified" && (
+                <div className="absolute -bottom-2 -right-2 md:-bottom-3 md:-right-3 bg-white text-blue-600 p-1.5 md:p-2 rounded-xl md:rounded-2xl shadow-xl border-2 md:border-4 border-slate-900" title="Verificado">
+                  <ShieldCheck className="w-4 h-4 md:w-6 md:h-6 fill-blue-600 text-white" />
+                </div>
               )}
             </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap mb-2">
-                {dentist.verificationStatus === "verified" && (
-                  <span className="inline-flex items-center gap-1 text-xs bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/30">
-                    <ShieldCheck className="w-3.5 h-3.5" /> Verificado
+            {/* Main Info */}
+            <div className="flex-1 pb-2">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 md:gap-3 mb-3 md:mb-4">
+                {dentist.specialty && (
+                  <span className="px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-blue-500/20 text-blue-300 text-[10px] md:text-xs font-bold uppercase tracking-widest border border-blue-400/30">
+                    {dentist.specialty}
                   </span>
                 )}
-                {dentist.publicProfile?.emergencyCare && (
-                  <span className="inline-flex items-center gap-1 text-xs bg-red-500/80 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                    <Clock className="w-3.5 h-3.5" /> Atiende emergencias
-                  </span>
+                {rating && (
+                   <div className="flex items-center gap-1.5 bg-yellow-400/10 text-yellow-400 px-2 md:px-3 py-0.5 md:py-1 rounded-full border border-yellow-400/30">
+                    <Star className="w-3 h-3 md:w-3.5 md:h-3.5 fill-yellow-400" />
+                    <span className="text-xs md:text-sm font-bold">{rating}</span>
+                    <span className="text-[10px] md:text-xs opacity-60">({dentist.reviews.length})</span>
+                  </div>
                 )}
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{dentist.fullName}</h1>
-              {dentist.specialty && (
-                <p className="text-blue-100 text-lg mt-1">{dentist.specialty}</p>
-              )}
+              
+              <h1 className="text-3xl md:text-6xl font-extrabold tracking-tight mb-3 md:mb-4 leading-tight">
+                {dentist.fullName}
+              </h1>
 
-              {/* Rating + meta */}
-              <div className="flex flex-wrap items-center gap-4 mt-4 text-sm">
-                {reviewCount > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${i < Math.round(ratingAvg) ? "text-yellow-300 fill-current" : "text-white/30"}`}
-                        />
-                      ))}
-                    </div>
-                    <span className="font-semibold">{ratingAvg.toFixed(1)}</span>
-                    <span className="text-blue-100">({reviewCount} {reviewCount === 1 ? "reseña" : "reseñas"})</span>
-                  </div>
-                )}
-                {dentist.locations.length > 0 && (
-                  <div className="flex items-center gap-1.5 text-blue-100">
-                    <MapPin className="w-4 h-4" />
-                    {dentist.locations[0].commune || dentist.locations[0].city}
-                  </div>
-                )}
+              <div className="flex flex-wrap justify-center md:justify-start gap-y-2 gap-x-4 md:gap-x-6 text-slate-400 text-xs md:text-sm">
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-sky-400" />
+                  <span>{dentist.locations[0]?.commune || dentist.locations[0]?.city || dentist.clinic?.commune || "Chile"}</span>
+                </div>
                 {dentist.publicProfile?.experience && (
-                  <div className="flex items-center gap-1.5 text-blue-100">
-                    <Briefcase className="w-4 h-4" />
-                    {dentist.publicProfile.experience}
+                  <div className="flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 md:w-4 md:h-4 text-sky-400" />
+                    <span>{dentist.publicProfile.experience} exp.</span>
                   </div>
                 )}
+                <div className="flex items-center gap-1.5">
+                  <Languages className="w-3.5 h-3.5 md:w-4 md:h-4 text-sky-400" />
+                  <span>{languages.join(", ")}</span>
+                </div>
               </div>
             </div>
 
-            {/* CTA */}
-            <div className="w-full md:w-auto flex flex-col gap-2">
-              <Link
-                href={`/dentista/${slug}/agendar`}
-                className="bg-white text-blue-700 font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:bg-blue-50 transition flex items-center justify-center gap-2"
-              >
-                <Calendar className="w-5 h-5" />
-                Agendar hora
-              </Link>
-              {nextSlot && (
-                <p className="text-xs text-blue-100 text-center">
-                  Próximo disponible:{" "}
-                  <span className="font-medium text-white">
-                    {formatNext(nextSlot)}
-                  </span>
-                </p>
-              )}
-              {dentist.phone && (
-                <a
-                  href={`tel:${dentist.phone}`}
-                  className="border border-white/40 text-white px-6 py-2.5 rounded-xl text-sm hover:bg-white/10 transition flex items-center justify-center gap-2"
-                >
-                  <Phone className="w-4 h-4" /> {dentist.phone}
-                </a>
-              )}
+            {/* Quick Actions (Desktop only for Heart/Share in hero) */}
+            <div className="hidden md:flex gap-3 md:flex-col lg:flex-row">
+              <button className="p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
+                <Share2 className="w-5 h-5" />
+              </button>
+              <button className="p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
+                <Heart className="w-5 h-5" />
+              </button>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="container mx-auto px-4 py-8 grid lg:grid-cols-3 gap-6">
-        {/* Columna principal */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Sobre mí */}
-          {(dentist.publicProfile?.bioPublic || dentist.bio) && (
-            <Card title="Sobre mí">
-              <p className="text-slate-700 leading-relaxed whitespace-pre-line">
-                {dentist.publicProfile?.bioPublic || dentist.bio}
-              </p>
-            </Card>
-          )}
-
-          {/* Servicios */}
-          {dentist.services.length > 0 && (
-            <Card title="Servicios y precios">
-              <ul className="divide-y divide-slate-100">
-                {dentist.services.map((s: typeof dentist.services[number]) => (
-                  <li key={s.id} className="py-3 flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-slate-900">{s.name}</p>
-                      {s.description && (
-                        <p className="text-sm text-slate-500 mt-0.5">{s.description}</p>
-                      )}
-                      <p className="text-xs text-slate-400 mt-1">
-                        Duración: {s.durationMin} min
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      {s.priceCLP ? (
-                        <p className="font-semibold text-slate-900">{formatCLP(s.priceCLP)}</p>
-                      ) : (
-                        <p className="text-xs text-slate-400">Consultar</p>
-                      )}
-                      <Link
-                        href={`/dentista/${slug}/agendar?service=${s.id}`}
-                        className="inline-block mt-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
-                      >
-                        Agendar →
-                      </Link>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
-
-          {/* Fotos */}
-          {photos.length > 0 && (
-            <Card title="Galería">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {photos.map((p, i) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={i}
-                    src={p}
-                    alt={`Foto ${i + 1}`}
-                    className="rounded-lg object-cover aspect-square"
-                  />
-                ))}
-              </div>
-            </Card>
-          )}
-
-          {/* Reviews */}
-          <Card title={`Reseñas de pacientes (${reviewCount})`}>
-            {dentist.reviews.length === 0 ? (
-              <p className="text-sm text-slate-500">
-                Aún no hay reseñas publicadas. ¡Sé el primero!
-              </p>
-            ) : (
-              <ul className="space-y-5">
-                {dentist.reviews.map((r: typeof dentist.reviews[number]) => (
-                  <li key={r.id} className="pb-5 border-b border-slate-100 last:border-0 last:pb-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-100 to-sky-100 text-blue-700 grid place-items-center text-xs font-bold">
-                        {r.patientName.split(" ").map(s => s[0]).slice(0, 2).join("")}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-sm text-slate-900">{r.patientName}</p>
-                          {r.verified && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 flex items-center gap-0.5">
-                              <CheckCircle2 className="w-3 h-3" /> Verificado
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`w-3.5 h-3.5 ${i < r.rating ? "text-yellow-400 fill-current" : "text-slate-200"}`} />
-                            ))}
-                          </div>
-                          <span className="text-xs text-slate-400">
-                            {new Date(r.date).toLocaleDateString("es-CL", { month: "long", year: "numeric" })}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    {r.treatment && (
-                      <p className="text-xs text-slate-500 mb-1">
-                        Tratamiento: <span className="font-medium">{r.treatment}</span>
-                      </p>
-                    )}
-                    {r.comment && (
-                      <p className="text-sm text-slate-700 leading-relaxed">{r.comment}</p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Ubicaciones */}
-          {dentist.locations.length > 0 && (
-            <Card title="Ubicaciones">
-              <ul className="space-y-4">
-                {dentist.locations.map((l: typeof dentist.locations[number]) => (
-                  <li key={l.id}>
-                    <p className="font-medium text-sm text-slate-900">{l.name}</p>
-                    {l.address && (
-                      <p className="text-sm text-slate-600 mt-0.5">{l.address}</p>
-                    )}
-                    {(l.commune || l.city) && (
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {[l.commune, l.city, l.region].filter(Boolean).join(", ")}
-                      </p>
-                    )}
-                    {l.phone && (
-                      <a
-                        href={`tel:${l.phone}`}
-                        className="text-xs text-blue-600 hover:underline mt-1 inline-block"
-                      >
-                        {l.phone}
-                      </a>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
-
-          {/* Horarios */}
-          {dentist.weeklySchedule.length > 0 && (
-            <Card title="Horarios de atención">
-              <ul className="space-y-1.5 text-sm">
-                {[1, 2, 3, 4, 5, 6, 0].map((d) => {
-                  const entries = dentist.weeklySchedule.filter(
-                    (w: typeof dentist.weeklySchedule[number]) => w.dayOfWeek === d && w.enabled,
-                  );
-                  return (
-                    <li key={d} className="flex items-center justify-between">
-                      <span className="text-slate-600">{DAYS_ES[d]}</span>
-                      {entries.length === 0 ? (
-                        <span className="text-slate-400">Cerrado</span>
-                      ) : (
-                        <span className="font-medium text-slate-900">
-                          {entries.map((e: typeof entries[number]) => `${e.openTime}–${e.closeTime}`).join(", ")}
-                        </span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </Card>
-          )}
-
-          {/* Info adicional */}
-          <Card title="Información">
-            <ul className="space-y-2.5 text-sm">
-              {languages.length > 0 && (
-                <li className="flex items-start gap-2">
-                  <Globe className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                  <span>
-                    <span className="text-slate-500">Idiomas:</span>{" "}
-                    <span className="font-medium text-slate-900">{languages.join(", ")}</span>
-                  </span>
-                </li>
-              )}
-              {education.length > 0 && (
-                <li className="flex items-start gap-2">
-                  <GraduationCap className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                  <span>
-                    <span className="text-slate-500">Formación:</span>
-                    <ul className="mt-0.5">
-                      {education.map((e, i) => <li key={i} className="font-medium text-slate-900">{e}</li>)}
-                    </ul>
-                  </span>
-                </li>
-              )}
-              {paymentMethods.length > 0 && (
-                <li className="text-slate-600">
-                  <span className="text-slate-500">Pagos:</span>{" "}
-                  <span className="font-medium text-slate-900">{paymentMethods.join(", ")}</span>
-                </li>
-              )}
-              {dentist.publicProfile?.acceptsInsurance && (
-                <li className="text-slate-600">
-                  <span className="text-slate-500">Seguros:</span>{" "}
-                  <span className="font-medium text-slate-900">
-                    {insurances.length > 0 ? insurances.join(", ") : "Acepta convenios"}
-                  </span>
-                </li>
-              )}
-              {dentist.licenseNumber && (
-                <li className="text-xs text-slate-400 pt-2 border-t border-slate-100">
-                  Reg. SIS: {dentist.licenseNumber}
-                </li>
-              )}
-            </ul>
-          </Card>
-
-          {/* CTA sticky */}
-          <div className="sticky top-20">
-            <Link
-              href={`/dentista/${slug}/agendar`}
-              className="block w-full bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold text-center py-3 rounded-xl shadow-lg hover:shadow-xl transition"
-            >
-              <Calendar className="w-5 h-5 inline mr-1.5" />
-              Agendar hora online
-            </Link>
-            {dentist.phone && (
-              <a
-                href={`https://wa.me/${dentist.phone.replace(/\D/g, "")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="block w-full mt-2 bg-emerald-500 text-white font-semibold text-center py-2.5 rounded-xl hover:bg-emerald-600 transition"
-              >
-                <MessageCircle className="w-4 h-4 inline mr-1.5" />
-                WhatsApp
-              </a>
-            )}
           </div>
         </div>
       </div>
+
+      {/* ══ Content ══ */}
+      <div className="max-w-5xl mx-auto px-4 md:px-6 -mt-8 md:-mt-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 md:gap-8">
+          
+          {/* Main Column */}
+          <div className="space-y-8">
+            
+            {/* Bio */}
+            <section className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <User className="w-5 h-5 text-blue-600" /> Sobre {dentist.fullName.split(" ")[0]}
+              </h2>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">
+                {dentist.publicProfile?.bioPublic || dentist.bio || "Este profesional aún no ha completado su biografía."}
+              </p>
+
+              {education.length > 0 && (
+                <div className="mt-8 pt-8 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2 uppercase tracking-widest">
+                    <GraduationCap className="w-4 h-4 text-blue-600" /> Formación y Trayectoria
+                  </h3>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {education.map((item, i) => (
+                      <div key={i} className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                        <CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                        <span className="text-sm text-slate-700 font-medium">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Services */}
+            {dentist.services.length > 0 && (
+              <section className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                  <Stethoscope className="w-5 h-5 text-blue-600" /> Servicios y Precios
+                </h2>
+                <div className="divide-y divide-slate-100">
+                  {dentist.services.map(s => (
+                    <div key={s.id} className="py-4 flex items-center justify-between gap-4 group">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{s.name}</h3>
+                        <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-3">
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {s.durationMin} min</span>
+                          {s.description && <span>· {s.description}</span>}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-black text-slate-900">
+                          {s.priceCLP ? new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(s.priceCLP) : "—"}
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Precio base</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-6 text-[11px] text-slate-400 italic bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  * Los precios son referenciales y pueden variar según la evaluación clínica y complejidad del tratamiento.
+                </p>
+              </section>
+            )}
+
+            {/* Reviews */}
+            <section className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500" /> Opiniones de pacientes
+                </h2>
+                {rating && (
+                  <div className="flex items-center gap-2 bg-yellow-50 px-4 py-1.5 rounded-2xl border border-yellow-200">
+                    <span className="text-lg font-black text-yellow-700">{rating}</span>
+                    <div className="flex gap-0.5">
+                      {[1,2,3,4,5].map(i => (
+                        <Star key={i} className={`w-3 h-3 ${i <= Math.round(Number(rating)) ? "fill-yellow-500 text-yellow-500" : "text-yellow-200"}`} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {dentist.reviews.length === 0 ? (
+                <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  <MessageCircle className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500 text-sm">Aún no hay opiniones para este profesional.</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {dentist.reviews.map(r => (
+                    <div key={r.id} className="p-5 rounded-2xl border border-slate-100 hover:border-slate-200 transition">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900">{r.patientName}</span>
+                            {r.verified && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
+                                <ShieldCheck className="w-3 h-3" /> PACIENTE VERIFICADO
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-0.5 uppercase tracking-wider font-bold">
+                            {r.treatment} · {new Date(r.date).toLocaleDateString("es-CL", { month: "long", year: "numeric" })}
+                          </p>
+                        </div>
+                        <div className="flex gap-0.5">
+                          {[1,2,3,4,5].map(i => (
+                            <Star key={i} className={`w-3.5 h-3.5 ${i <= r.rating ? "fill-yellow-500 text-yellow-500" : "text-yellow-100"}`} />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-slate-600 text-sm leading-relaxed">{r.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
+
+          {/* Sidebar Column */}
+          <div className="space-y-6">
+            
+            {/* Booking Card */}
+            <div className="sticky top-24 bg-white rounded-3xl border-2 border-blue-600 p-6 shadow-xl shadow-blue-500/10">
+              <h3 className="text-xl font-bold mb-6 text-slate-900">Agenda tu atención</h3>
+              
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50 border border-blue-100">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">Reserva online</p>
+                    <p className="text-sm font-semibold text-blue-900">Confirmación inmediata</p>
+                  </div>
+                </div>
+              </div>
+
+              <Link 
+                href={`/agendar/${dentist.id}`}
+                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-center block hover:bg-blue-700 transition transform active:scale-95 shadow-lg shadow-blue-600/25"
+              >
+                AGENDAR AHORA
+              </Link>
+
+              {dentist.phone && (
+                <a 
+                  href={`https://wa.me/${dentist.phone.replace(/[^0-9]/g, "")}`}
+                  target="_blank" rel="noreferrer"
+                  className="w-full mt-3 py-3 bg-white border border-slate-200 text-emerald-600 rounded-2xl font-bold text-center flex items-center justify-center gap-2 hover:bg-emerald-50 transition"
+                >
+                  <MessageCircle className="w-5 h-5" /> Contactar por WhatsApp
+                </a>
+              )}
+
+              <p className="text-[10px] text-slate-400 text-center mt-6 uppercase tracking-widest font-bold">
+                Más de 50 pacientes agendados este mes
+              </p>
+            </div>
+
+            {/* Locations (Sedes) */}
+            <section className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2 uppercase tracking-widest">
+                <Building2 className="w-4 h-4 text-blue-600" /> Dónde atiende
+              </h3>
+              <div className="space-y-4">
+                {dentist.locations.map(l => (
+                  <div key={l.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">{l.name}</h4>
+                    <p className="text-xs text-slate-500 mb-2">{l.address}, {l.commune || l.city}</p>
+                    <a 
+                      href={`https://maps.google.com/?q=${l.address} ${l.city}`} 
+                      target="_blank" rel="noreferrer"
+                      className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      <MapPin className="w-3 h-3" /> VER EN MAPA
+                    </a>
+                  </div>
+                ))}
+                {dentist.clinic && (
+                  <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100">
+                    <p className="text-[10px] font-bold text-blue-600 mb-1 uppercase tracking-wider">Clínica Principal</p>
+                    <h4 className="font-bold text-slate-900 text-sm">{dentist.clinic.name}</h4>
+                    <p className="text-xs text-slate-500">{dentist.clinic.address}, {dentist.clinic.commune || dentist.clinic.city}</p>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Insurance & Payment */}
+            {(insurance.length > 0 || paymentMethods.length > 0) && (
+              <section className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-widest flex items-center gap-2">
+                   <ShieldCheck className="w-4 h-4 text-blue-600" /> Pagos y Seguros
+                </h3>
+                
+                {insurance.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Acepta convenios con</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {insurance.map(i => (
+                        <span key={i} className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-100">{i}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {paymentMethods.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Métodos de pago</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {paymentMethods.map(m => (
+                        <span key={m} className="px-2.5 py-1 rounded-lg bg-slate-50 text-slate-700 text-[10px] font-bold border border-slate-200">{m}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Social */}
+            {(dentist.publicProfile?.facebookUrl || dentist.publicProfile?.instagramUrl) && (
+              <section className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-widest">Redes Sociales</h3>
+                <div className="flex gap-2">
+                  {dentist.publicProfile?.facebookUrl && (
+                    <a href={dentist.publicProfile.facebookUrl} target="_blank" rel="noreferrer" className="flex-1 p-3 rounded-2xl bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white transition flex items-center justify-center gap-2 border border-blue-100">
+                      <Facebook className="w-5 h-5" /> <span className="text-xs font-bold">Facebook</span>
+                    </a>
+                  )}
+                  {dentist.publicProfile?.instagramUrl && (
+                    <a href={dentist.publicProfile.instagramUrl} target="_blank" rel="noreferrer" className="flex-1 p-3 rounded-2xl bg-pink-50 text-pink-700 hover:bg-pink-600 hover:text-white transition flex items-center justify-center gap-2 border border-pink-100">
+                      <Instagram className="w-5 h-5" /> <span className="text-xs font-bold">Instagram</span>
+                    </a>
+                  )}
+                </div>
+              </section>
+            )}
+
+          </div>
+        </div>
+      </div>
+      
+      {/* ══ Floating Mobile CTA ══ */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 z-50 md:hidden flex gap-3">
+        <Link 
+          href={`/agendar/${dentist.id}`}
+          className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-center shadow-lg shadow-blue-600/20 active:scale-95 transition"
+        >
+          AGENDAR AHORA
+        </Link>
+        {dentist.phone && (
+          <a 
+            href={`https://wa.me/${dentist.phone.replace(/[^0-9]/g, "")}`}
+            target="_blank" rel="noreferrer"
+            className="p-3 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 flex items-center justify-center"
+          >
+            <MessageCircle className="w-6 h-6" />
+          </a>
+        )}
+      </div>
+
+      {/* ══ Footer ══ */}
+      <footer className="mt-20 border-t border-slate-200 bg-white py-12 pb-28 md:pb-12">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <div className="flex items-center justify-center gap-2.5 mb-6">
+            <div className="w-8 h-8 rounded-xl bg-slate-900 text-white font-black grid place-items-center text-sm">D</div>
+            <span className="font-bold text-lg text-slate-900">DentCode</span>
+          </div>
+          <p className="text-xs md:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+            DentCode es la plataforma líder en Chile para la gestión odontológica y conexión con pacientes verificados.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+            <Link href="/buscar" className="text-[10px] md:text-xs font-bold text-slate-400 hover:text-blue-600">Buscar Dentistas</Link>
+            <Link href="/" className="text-[10px] md:text-xs font-bold text-slate-400 hover:text-blue-600">Para Clínicas</Link>
+            <Link href="/login" className="text-[10px] md:text-xs font-bold text-slate-400 hover:text-blue-600">Acceso Profesional</Link>
+          </div>
+          <div className="mt-8 pt-8 border-t border-slate-100 text-[9px] md:text-[10px] text-slate-400 font-medium">
+            © {new Date().getFullYear()} DentCode. Desarrollado por Leucode.IA · Todos los derechos reservados.
+          </div>
+        </div>
+      </footer>
     </div>
   );
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="bg-white rounded-2xl border border-slate-200 p-6">
-      <h2 className="font-semibold text-slate-900 mb-4">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-function safeParse<T>(raw: string | null | undefined, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
-
-function formatNext(d: Date): string {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tgt = new Date(d);
-  const day = new Date(tgt);
-  day.setHours(0, 0, 0, 0);
-  const diff = Math.round((day.getTime() - today.getTime()) / 86400000);
-  const time = d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
-  if (diff === 0) return `hoy ${time}`;
-  if (diff === 1) return `mañana ${time}`;
-  return `${d.toLocaleDateString("es-CL", { weekday: "short", day: "numeric", month: "short" })} ${time}`;
 }

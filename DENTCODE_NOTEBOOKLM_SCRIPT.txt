@@ -1,0 +1,49 @@
+# GUIÓN DE PRESENTACIÓN DENTCODE (Optimizado para NotebookLM)
+
+## 0. Introducción: El Problema en la Odontología Actual
+Muchos dentistas y clínicas en Chile aún gestionan sus citas por papel, Excel o chats de WhatsApp manuales que consumen tiempo y generan inasistencias. La falta de una herramienta clínica visual y moderna aleja a los pacientes que buscan una experiencia digital y profesional.
+
+## 1. ¿Qué es DentCode?
+DentCode no es solo un software de gestión; es un ecosistema odontológico completo. Es una plataforma SaaS (Software como Servicio) diseñada específicamente para el mercado chileno, que integra la gestión administrativa con herramientas clínicas de última generación y automatización de mensajería oficial.
+
+## 2. Perfiles de Usuario: Una Solución para cada Necesidad
+
+### Perfil 1: El Dentista Independiente
+Diseñado para el profesional que busca autonomía. 
+- Agenda propia con estados de cita.
+- Ficha clínica digital segura.
+- El revolucionario Odontograma 3D interactivo.
+- Perfil público con URL única para recibir citas 24/7.
+
+### Perfil 2: La Clínica Dental
+Un panel de control para administradores y staff.
+- Gestión de múltiples dentistas.
+- Dashboard de KPIs: monitoreo de ingresos mensuales y tasas de confirmación.
+- Agenda centralizada para optimizar el uso de los gabinetes.
+- Reportes de rendimiento por profesional.
+
+### Perfil 3: El Laboratorio Dental
+El aliado estratégico que cierra el ciclo digital.
+- Carga masiva de radiografías y exámenes.
+- Vinculación automática con el paciente, eliminando el uso de CDs o correos perdidos.
+
+## 3. Funcionalidades Estrellas: El Factor "WOW"
+
+### El Odontograma 3D
+A diferencia de los dibujos planos tradicionales, DentCode ofrece un modelo 3D dinámico donde el dentista puede marcar hallazgos y tratamientos, permitiendo que el paciente entienda visualmente su diagnóstico, lo que aumenta la tasa de aceptación de presupuestos.
+
+### Automatización con WhatsApp Business API
+DentCode se conecta directamente con la API oficial de Meta. El sistema envía recordatorios automáticos y el paciente puede confirmar o cancelar con un solo clic. Esto reduce el "No-show" hasta en un 40%.
+
+### Perfil Público y Agendamiento Online
+Cada dentista o clínica tiene una vitrina digital premium. Los pacientes pueden ver horarios disponibles, equipo de profesionales y reservar su hora sin necesidad de llamar por teléfono.
+
+## 4. Implementación y Escalabilidad
+DentCode es una PWA (Progressive Web App), lo que significa que se instala en el celular como una aplicación nativa, pero funciona en cualquier navegador. La implementación es instantánea: registras tu cuenta, configuras tus horarios y empiezas a operar.
+
+## 5. Cierre: Únete al Ecosistema
+DentCode de Leucode.IA está redefiniendo cómo se vive la odontología. Menos administración, más atención clínica y una experiencia de paciente inolvidable.
+
+---
+DENTCODE: Tu clínica, en la era digital.
+Un producto de Leucode.IA

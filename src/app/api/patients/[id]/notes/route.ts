@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getCurrentDentistId } from "@/lib/utils";
+import { getCurrentDentistId } from "@/lib/auth";
 
 const schema = z.object({
   date: z.string().optional(),

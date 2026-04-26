@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Odontogram } from "../../../../components/odontogram";
+import { Odontogram3D } from "../../../../components/odontogram-3d";
 import {
   FileText, Image as ImageIcon, StickyNote, Bell, Clock, Activity,
   Upload, Trash2, Check, Plus,
@@ -90,8 +90,8 @@ export function PatientTabs(props: {
         {tab === "recalls" && <Recalls patientId={props.patient.id} recalls={props.recalls} />}
         {tab === "timeline" && <Timeline {...props} />}
         {tab === "odonto" && (
-          <div className="p-4 rounded-xl border bg-white">
-            <Odontogram patientId={props.patient.id} records={props.toothRecords} />
+          <div className="rounded-xl overflow-hidden">
+            <Odontogram3D patientName={props.patient.fullName} />
           </div>
         )}
       </div>
@@ -462,62 +462,197 @@ function Recalls({ patientId, recalls }: { patientId: string; recalls: Recall[] 
 function Timeline({ appointments, notes, attachments, recalls }: {
   appointments: Appt[]; notes: ClinicalNote[]; attachments: Attachment[]; recalls: Recall[];
 }) {
-  type Event = { at: Date; kind: string; title: string; subtitle?: string; color: string; icon: any };
+  const [filter, setFilter] = useState<string>("all");
+  const [expanded, setExpanded] = useState<number | null>(null);
 
-  const events = useMemo<Event[]>(() => {
-    const arr: Event[] = [];
-    for (const a of appointments) arr.push({
-      at: new Date(a.startAt), kind: "appointment",
-      title: `Cita — ${a.treatment ?? "Consulta"}`,
-      subtitle: `Estado: ${a.status}${a.priceCLP ? ` · $${a.priceCLP.toLocaleString("es-CL")}` : ""}`,
-      color: "bg-sky-500", icon: Clock,
-    });
-    for (const n of notes) arr.push({
-      at: new Date(n.date), kind: "note",
-      title: "Nota clínica",
-      subtitle: [n.subjective, n.assessment].filter(Boolean).join(" · ").slice(0, 120) || undefined,
-      color: "bg-purple-500", icon: StickyNote,
-    });
-    for (const a of attachments) arr.push({
-      at: new Date(a.takenAt ?? a.createdAt), kind: "attachment",
-      title: `${a.category}${a.subtype ? ` · ${a.subtype}` : ""}`,
-      subtitle: a.filename,
-      color: a.category === "radiograph" ? "bg-amber-500" : "bg-emerald-500",
-      icon: a.mime.startsWith("image/") ? ImageIcon : FileText,
-    });
-    for (const r of recalls) arr.push({
-      at: new Date(r.doneAt ?? r.dueDate), kind: "recall",
-      title: `Control ${r.type}${r.doneAt ? " · completado" : " · programado"}`,
-      subtitle: r.notes ?? undefined,
-      color: r.doneAt ? "bg-emerald-600" : "bg-red-500", icon: Bell,
-    });
+  type TEvent = {
+    at: Date; kind: string; title: string; subtitle?: string; detail?: string;
+    color: string; bg: string; border: string; icon: any;
+    badge?: string; badgeColor?: string; amount?: number;
+  };
+
+  const events = useMemo<TEvent[]>(() => {
+    const arr: TEvent[] = [];
+    const apptStatus: Record<string, { badge: string; badgeColor: string }> = {
+      SCHEDULED: { badge: "Programada",  badgeColor: "bg-blue-100 text-blue-700" },
+      COMPLETED: { badge: "Completada",  badgeColor: "bg-emerald-100 text-emerald-700" },
+      CANCELLED: { badge: "Cancelada",   badgeColor: "bg-red-100 text-red-700" },
+      NO_SHOW:   { badge: "No asistió",  badgeColor: "bg-amber-100 text-amber-700" },
+    };
+    for (const a of appointments) {
+      const s = apptStatus[a.status] ?? { badge: a.status, badgeColor: "bg-slate-100 text-slate-600" };
+      arr.push({
+        at: new Date(a.startAt), kind: "appointment",
+        title: a.treatment ?? "Consulta",
+        subtitle: `Finaliza: ${new Date(a.endAt).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}`,
+        detail: a.priceCLP ? `Valor cobrado: $${a.priceCLP.toLocaleString("es-CL")}` : undefined,
+        color: "#0ea5e9", bg: "#f0f9ff", border: "#bae6fd",
+        icon: Clock, ...s, amount: a.priceCLP ?? undefined,
+      });
+    }
+    for (const n of notes) {
+      arr.push({
+        at: new Date(n.date), kind: "note", title: "Nota Clínica",
+        subtitle: n.subjective ?? undefined,
+        detail: [n.assessment, n.plan].filter(Boolean).join(" · ").slice(0, 200) || undefined,
+        color: "#8b5cf6", bg: "#faf5ff", border: "#ddd6fe", icon: StickyNote,
+      });
+    }
+    for (const a of attachments) {
+      const isXray = a.category === "radiograph";
+      arr.push({
+        at: new Date(a.takenAt ?? a.createdAt), kind: "attachment",
+        title: isXray ? `Radiografía · ${a.subtype ?? ""}` : `Archivo · ${a.category}`,
+        subtitle: a.filename, detail: a.note ?? undefined,
+        color: isXray ? "#f59e0b" : "#10b981",
+        bg: isXray ? "#fffbeb" : "#f0fdf4",
+        border: isXray ? "#fde68a" : "#bbf7d0",
+        icon: a.mime.startsWith("image/") ? ImageIcon : FileText,
+        badge: a.subtype ?? a.category,
+        badgeColor: isXray ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700",
+      });
+    }
+    for (const r of recalls) {
+      const done = !!r.doneAt;
+      const overdue = !done && new Date(r.dueDate) < new Date();
+      arr.push({
+        at: new Date(r.doneAt ?? r.dueDate), kind: "recall",
+        title: `Control · ${r.type}`, subtitle: r.notes ?? undefined,
+        color: done ? "#10b981" : overdue ? "#ef4444" : "#f59e0b",
+        bg: done ? "#f0fdf4" : overdue ? "#fef2f2" : "#fffbeb",
+        border: done ? "#bbf7d0" : overdue ? "#fecaca" : "#fde68a",
+        icon: Bell,
+        badge: done ? "Completado" : overdue ? "Vencido" : "Pendiente",
+        badgeColor: done ? "bg-emerald-100 text-emerald-700" : overdue ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700",
+      });
+    }
     return arr.sort((x, y) => y.at.getTime() - x.at.getTime());
   }, [appointments, notes, attachments, recalls]);
 
-  if (events.length === 0) return <p className="text-sm text-muted-foreground">Sin eventos.</p>;
+  const filtered = filter === "all" ? events : events.filter(e => e.kind === filter);
+
+  const groups = useMemo(() => {
+    const map = new Map<string, TEvent[]>();
+    for (const e of filtered) {
+      const key = e.at.toLocaleDateString("es-CL", { month: "long", year: "numeric" });
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(e);
+    }
+    return map;
+  }, [filtered]);
+
+  const totalRevenue = events.filter(e => e.kind === "appointment").reduce((s, e) => s + (e.amount ?? 0), 0);
+
+  const filterTabs = [
+    { id: "all",         label: "Todo",      color: "#64748b", count: events.length },
+    { id: "appointment", label: "Citas",     color: "#0ea5e9", count: events.filter(e => e.kind === "appointment").length },
+    { id: "note",        label: "Notas",     color: "#8b5cf6", count: events.filter(e => e.kind === "note").length },
+    { id: "attachment",  label: "Archivos",  color: "#f59e0b", count: events.filter(e => e.kind === "attachment").length },
+    { id: "recall",      label: "Controles", color: "#10b981", count: events.filter(e => e.kind === "recall").length },
+  ];
+
+  if (events.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <Clock className="w-12 h-12 text-slate-200 mb-4" />
+        <p className="text-slate-400 font-bold">Sin eventos registrados</p>
+        <p className="text-slate-300 text-sm mt-1">Citas, notas y controles aparecerán aquí.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative pl-6">
-      <div className="absolute left-2 top-1 bottom-1 w-px bg-border" />
-      <ul className="space-y-4">
-        {events.map((e, i) => {
-          const Icon = e.icon;
-          return (
-            <li key={i} className="relative">
-              <span className={`absolute -left-[22px] top-1 w-4 h-4 rounded-full ${e.color} grid place-items-center`}>
-                <Icon className="w-2.5 h-2.5 text-white" />
-              </span>
-              <div className="p-3 rounded-lg border bg-white">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">{e.title}</span>
-                  <span className="text-xs text-muted-foreground">{e.at.toLocaleString("es-CL")}</span>
-                </div>
-                {e.subtitle && <p className="text-sm text-muted-foreground mt-0.5">{e.subtitle}</p>}
+    <div className="space-y-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Total eventos", value: events.length,                                         color: "#64748b", bg: "#f8fafc" },
+          { label: "Citas",         value: events.filter(e => e.kind === "appointment").length,   color: "#0ea5e9", bg: "#f0f9ff" },
+          { label: "Controles",     value: events.filter(e => e.kind === "recall").length,        color: "#10b981", bg: "#f0fdf4" },
+          { label: "Ingresos",      value: `$${totalRevenue.toLocaleString("es-CL")}`,            color: "#8b5cf6", bg: "#faf5ff" },
+        ].map((s, i) => (
+          <div key={i} className="rounded-2xl border p-4" style={{ background: s.bg, borderColor: s.color + "33" }}>
+            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: s.color + "aa" }}>{s.label}</p>
+            <p className="text-xl font-black mt-0.5" style={{ color: s.color }}>{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-2 flex-wrap">
+        {filterTabs.map(f => (
+          <button key={f.id} onClick={() => setFilter(f.id)}
+            className="px-4 py-1.5 rounded-full text-xs font-bold transition-all border"
+            style={filter === f.id
+              ? { background: f.color, color: "#fff", borderColor: f.color }
+              : { background: "#fff", color: f.color, borderColor: f.color + "55" }
+            }
+          >
+            {f.label} <span className="opacity-60 ml-1">{f.count}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Grouped timeline */}
+      <div className="space-y-8">
+        {Array.from(groups.entries()).map(([month, evts]) => (
+          <div key={month}>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400 capitalize">{month}</span>
+              <div className="flex-1 h-px bg-slate-100" />
+              <span className="text-[10px] font-bold text-slate-300">{evts.length} evento{evts.length !== 1 ? "s" : ""}</span>
+            </div>
+            <div className="relative pl-8">
+              <div className="absolute left-3 top-0 bottom-0 w-0.5 rounded-full" style={{ background: "linear-gradient(to bottom, #e2e8f0, #f1f5f9)" }} />
+              <div className="space-y-3">
+                {evts.map((e, i) => {
+                  const Icon = e.icon;
+                  const idx = events.indexOf(e);
+                  const isOpen = expanded === idx;
+                  return (
+                    <div key={i} className="relative group">
+                      <div className="absolute -left-[21px] top-4 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center shadow-md transition-transform duration-200 group-hover:scale-110" style={{ background: e.color }}>
+                        <Icon className="w-2.5 h-2.5 text-white" />
+                      </div>
+                      <div
+                        className="rounded-2xl border cursor-pointer transition-all duration-200 overflow-hidden"
+                        style={{ background: e.bg, borderColor: isOpen ? e.color : e.border, boxShadow: isOpen ? `0 4px 20px ${e.color}22` : "none" }}
+                        onClick={() => setExpanded(isOpen ? null : idx)}
+                      >
+                        <div className="flex items-start justify-between p-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-bold text-slate-900 text-sm">{e.title}</p>
+                              {e.badge && (
+                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide ${e.badgeColor}`}>{e.badge}</span>
+                              )}
+                            </div>
+                            {e.subtitle && <p className="text-xs text-slate-500 mt-0.5 truncate">{e.subtitle}</p>}
+                          </div>
+                          <div className="text-right ml-4 flex-shrink-0">
+                            <p className="text-xs font-bold text-slate-500">{e.at.toLocaleDateString("es-CL")}</p>
+                            <p className="text-[10px] text-slate-400">{e.at.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}</p>
+                          </div>
+                        </div>
+                        {isOpen && e.detail && (
+                          <div className="px-4 pb-4 text-sm border-t" style={{ borderColor: e.border, color: "#475569" }}>
+                            <p className="mt-3 leading-relaxed">{e.detail}</p>
+                          </div>
+                        )}
+                        {e.detail && (
+                          <p className="text-center text-[10px] font-bold pb-1.5 opacity-30" style={{ color: e.color }}>
+                            {isOpen ? "▲ cerrar" : "▼ ver más"}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </li>
-          );
-        })}
-      </ul>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

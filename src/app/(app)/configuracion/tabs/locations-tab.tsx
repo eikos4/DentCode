@@ -107,11 +107,11 @@ export function LocationsTab({ initial }: { initial: LocationData[] }) {
         });
         const data = await res.json();
         if (res.ok) {
-          setLocations((prev) => [...prev, data.location]);
+          setLocations((prev) => [...prev, data]);
           setMsg({ type: "ok", text: "Sede creada" });
           resetForm();
         } else {
-          setMsg({ type: "err", text: data.message || "Error" });
+          setMsg({ type: "err", text: data.error || data.message || "Error" });
         }
       }
     } catch {
@@ -126,7 +126,7 @@ export function LocationsTab({ initial }: { initial: LocationData[] }) {
     try {
       const res = await fetch(`/api/config/locations/${id}`, { method: "DELETE" });
       if (res.ok) {
-        setLocations((prev) => prev.filter((l) => l.id !== id));
+        setLocations((prev) => prev.filter((l) => l && l.id !== id));
         setMsg({ type: "ok", text: "Sede eliminada" });
       }
     } catch {
@@ -276,7 +276,7 @@ export function LocationsTab({ initial }: { initial: LocationData[] }) {
         </div>
       ) : (
         <div className="space-y-2">
-          {locations.map((l) => (
+          {locations.filter(Boolean).map((l) => (
             <div
               key={l.id}
               className="flex items-start gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3"

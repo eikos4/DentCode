@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentDentistId } from "@/lib/utils";
+import { getCurrentDentistId } from "@/lib/auth";
 import { saveUpload } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -19,7 +19,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const note = (form.get("note") as string) || null;
   const takenAtStr = form.get("takenAt") as string | null;
 
-  const saved = await saveUpload({ patientId: params.id, file });
+  const saved = await saveUpload({ id: params.id, file, category: "patients" });
 
   const attachment = await prisma.attachment.create({
     data: {

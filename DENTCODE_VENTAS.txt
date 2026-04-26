@@ -1,0 +1,71 @@
+===============================================================================
+                    DENTCODE - ECOSISTEMA ODONTOLÓGICO 
+                    Documento Estratégico para Ventas
+===============================================================================
+
+1. VISIÓN GENERAL
+-----------------
+DentCode es una plataforma SaaS integral diseñada para modernizar la gestión 
+odontológica en Chile. Combina herramientas clínicas avanzadas (Odontograma 3D) 
+con automatización de marketing y fidelización (WhatsApp Business API).
+
+2. BENEFICIOS CLAVE (VALOR AGREGADO)
+------------------------------------
+* Reducción de Inasistencias (No-shows): Automatización de recordatorios por WhatsApp.
+* Profesionalismo: Perfil público con agenda online para captación de pacientes.
+* Eficiencia Clínica: Odontograma 3D interactivo y fichas clínicas digitales.
+* Escalabilidad: Desde dentistas independientes hasta grandes redes de clínicas.
+* Seguridad: Cumplimiento de normativas de salud y respaldo en la nube.
+
+3. FUNCIONALIDADES POR PERFIL
+------------------------------
+
+A. DENTISTA INDEPENDIENTE (Suscripción Individual)
+   - Agenda Inteligente: Gestión de citas con estados (Confirmada, Completada, No-show).
+   - Ficha Clínica: Historial completo de pacientes y evolución.
+   - Odontograma 3D: Visualización de tratamientos en modelo 3D dinámico.
+   - WhatsApp Auto: Envío de recordatorios y confirmaciones desde la plataforma.
+   - Perfil Público: Mini-sitio web para que pacientes agenden directamente.
+
+B. CLÍNICA DENTAL (Suscripción Enterprise/Staff)
+   - Dashboard Administrativo: KPIs en tiempo real (Ingresos, Tasa de confirmación).
+   - Gestión de Staff: Control de múltiples dentistas y personal administrativo.
+   - Agenda Centralizada: Vista global de todos los gabinetes y profesionales.
+   - Reportes Estratégicos: Análisis de actividad y productividad por dentista.
+   - Integración Lab: Recepción y asignación de radiografías digitales.
+
+C. LABORATORIO DENTAL (Aliado Estratégico)
+   - Portal de Carga: Subida masiva de resultados y radiografías.
+   - Match Inteligente: Vinculación automática de exámenes con fichas de pacientes.
+
+4. MODELO DE COSTOS (SUGERIDO)
+------------------------------
+
+* PLAN DENTISTA PRO: $29.900 CLP / mes
+  (Incluye: Agenda, Ficha, Odontograma, 50 msg WhatsApp/mes)
+
+* PLAN CLÍNICA BASE: $79.900 CLP / mes
+  (Incluye: 3 Dentistas, Dashboard Admin, WhatsApp ilimitado*)
+
+* PLAN CLÍNICA FULL: $149.900 CLP / mes
+  (Incluye: Dentistas ilimitados, Reportes avanzados, Integración Lab)
+
+* COSTO IMPLEMENTACIÓN: $0 CLP (Autogestionado) o $50.000 (Asistido).
+
+5. PROCESO DE IMPLEMENTACIÓN
+-----------------------------
+1. Registro: El usuario crea su cuenta en menos de 2 minutos.
+2. Verificación: El equipo de DentCode valida la identidad profesional (SuperSalud).
+3. Configuración: Carga de horarios, servicios y precios.
+4. Activación WhatsApp: Conexión con la API oficial de Meta para recordatorios.
+5. Lanzamiento: El dentista comparte su URL pública para recibir citas.
+
+6. DIFERENCIADORES CONTRA LA COMPETENCIA
+-----------------------------------------
+* User Experience: Interfaz premium, rápida y optimizada para móviles (PWA).
+* Integración WhatsApp: No requiere extensiones de Chrome; es 100% nativo.
+* Odontograma 3D: Tecnología superior a los diagramas 2D planos tradicionales.
+
+===============================================================================
+        PROPIEDAD DE LEUCODE.IA - DOCUMENTO CONFIDENCIAL DE VENTAS
+===============================================================================

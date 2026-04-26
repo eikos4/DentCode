@@ -16,33 +16,57 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { email, password } = loginSchema.parse(body);
 
+    // 1. Intentar login como Dentista
     const dentist = await prisma.dentist.findUnique({ where: { email } });
-    if (!dentist || !dentist.passwordHash) {
-      return NextResponse.json({ error: "Credenciales invalidas" }, { status: 401 });
+    if (dentist && dentist.passwordHash) {
+      const valid = await bcrypt.compare(password, dentist.passwordHash);
+      if (valid) {
+        await prisma.dentist.update({ where: { id: dentist.id }, data: { lastLoginAt: new Date() } });
+
+        const token = jwt.sign(
+          { id: dentist.id, dentistId: dentist.id, email: dentist.email, role: "DENTIST", fullName: dentist.fullName },
+          JWT_SECRET,
+          { expiresIn: "7d" }
+        );
+
+        const res = NextResponse.json({ ok: true, role: "DENTIST", dentistId: dentist.id });
+        res.cookies.set("auth-token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+          path: "/",
+        });
+        return res;
+      }
     }
 
-    const valid = await bcrypt.compare(password, dentist.passwordHash);
-    if (!valid) {
-      return NextResponse.json({ error: "Credenciales invalidas" }, { status: 401 });
+    // 2. Intentar login como Admin/User
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (user && user.passwordHash && user.isActive) {
+      const valid = await bcrypt.compare(password, user.passwordHash);
+      if (valid) {
+        await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+
+        const token = jwt.sign(
+          { id: user.id, userId: user.id, email: user.email, role: user.role },
+          JWT_SECRET,
+          { expiresIn: "7d" }
+        );
+
+        const res = NextResponse.json({ ok: true, role: user.role, userId: user.id });
+        res.cookies.set("auth-token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 60 * 60 * 24 * 7,
+          path: "/",
+        });
+        return res;
+      }
     }
 
-    await prisma.dentist.update({ where: { id: dentist.id }, data: { lastLoginAt: new Date() } });
-
-    const token = jwt.sign(
-      { id: dentist.id, dentistId: dentist.id, email: dentist.email, role: "DENTIST", fullName: dentist.fullName },
-      JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    const res = NextResponse.json({ ok: true, dentistId: dentist.id });
-    res.cookies.set("auth-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/",
-    });
-    return res;
+    return NextResponse.json({ error: "Credenciales invalidas" }, { status: 401 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }

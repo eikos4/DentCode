@@ -61,6 +61,8 @@ export default async function ConfigPage() {
           education: safeParse<string[]>(full.publicProfile?.education, []),
           acceptsInsurance: full.publicProfile?.acceptsInsurance || false,
           emergencyCare: full.publicProfile?.emergencyCare || false,
+          facebookUrl: full.publicProfile?.facebookUrl || "",
+          instagramUrl: full.publicProfile?.instagramUrl || "",
         }}
         services={full.services.map((s: typeof full.services[number]) => ({
           id: s.id,

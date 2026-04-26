@@ -145,3 +145,13 @@ export async function getClinicFromAuth() {
 
   return { ...clinic, role: user.role };
 }
+
+/** Devuelve el ID del dentista autenticado. Solo funciona en Server Components/Actions/API. */
+export async function getCurrentDentistId(): Promise<string> {
+  const user = await getAuthUser();
+  if (!user || !user.dentistId) {
+    throw new Error("No autenticado o no eres un dentista");
+  }
+  return user.dentistId;
+}
+

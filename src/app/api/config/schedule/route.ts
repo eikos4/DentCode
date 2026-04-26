@@ -30,13 +30,18 @@ export async function PUT(req: Request) {
   try {
     const user = await getAuthUser();
     if (!user || !user.dentistId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    const days = z.array(daySchema).parse(await req.json());
+    
+    const body = await req.json();
+    const { blocks } = z.object({ blocks: z.array(daySchema) }).parse(body);
+    
     await prisma.weeklySchedule.deleteMany({ where: { dentistId: user.dentistId } });
     const created = await prisma.weeklySchedule.createMany({
-      data: days.map((d) => ({ dentistId: user.dentistId!, ...d })),
+      data: blocks.map((d) => ({ dentistId: user.dentistId!, ...d })),
     });
+    
     return NextResponse.json({ count: created.count });
   } catch (error: any) {
+    console.error("Schedule save error:", error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }

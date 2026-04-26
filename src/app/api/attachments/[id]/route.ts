@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { unlink } from "fs/promises";
 import path from "path";
 import { prisma } from "@/lib/prisma";
-import { getCurrentDentistId } from "@/lib/utils";
+import { getCurrentDentistId } from "@/lib/auth";
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   const dentistId = await getCurrentDentistId();

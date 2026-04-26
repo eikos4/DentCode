@@ -228,6 +228,8 @@ model PublicProfile {
   insuranceProviders String? // JSON array de aseguradoras
   paymentMethods String? // JSON array de métodos de pago
   emergencyCare Boolean @default(false)
+  facebookUrl  String?
+  instagramUrl String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   dentist     Dentist  @relation(fields: [dentistId], references: [id], onDelete: Cascade)
@@ -430,3 +432,16 @@ model LabUpload {
   @@index([patientRut, isMatched])
   @@index([labId, createdAt])
 }
+
+// Mensajes de contacto del landing page
+model ContactMessage {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  accountType String   // Dentista independiente | Clínica dental | Otro
+  context     String   // Cuéntanos tu contexto
+  status      String   @default("UNREAD") // UNREAD | READ
+  createdAt   DateTime @default(now())
+}
+

@@ -1,6 +1,6 @@
 "use client";
-import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Search, Filter, MessageCircle, Phone, Mail, AlertTriangle, Clock,
@@ -82,6 +82,18 @@ export function PatientsClient({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [modalOpen, setModalOpen] = useState(false);
   const [actionsFor, setActionsFor] = useState<string | null>(null);
+  const [newPatientOpen, setNewPatientOpen] = useState(false);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("nuevo") === "true") {
+      setNewPatientOpen(true);
+      const p = new URLSearchParams(searchParams.toString());
+      p.delete("nuevo");
+      router.replace(`/pacientes?${p.toString()}`, { scroll: false });
+    }
+  }, [searchParams, router]);
 
   const filtered = useMemo(() => {
     let list = patients;
@@ -139,7 +151,10 @@ export function PatientsClient({
           >
             <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">WhatsApp masivo</span><span className="sm:hidden">WhatsApp</span>
           </button>
-          <NewPatientDialog />
+          <NewPatientDialog
+            externalOpen={newPatientOpen}
+            onExternalOpenChange={setNewPatientOpen}
+          />
         </div>
       </div>
 

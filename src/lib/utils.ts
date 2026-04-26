@@ -31,11 +31,3 @@ export function formatTime(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;
   return new Intl.DateTimeFormat("es-CL", { timeStyle: "short" }).format(date);
 }
-
-/** Devuelve el dentista "actual" (MVP: demo). Reemplazar por auth real. */
-export async function getCurrentDentistId(): Promise<string> {
-  const { prisma } = await import("./prisma");
-  const d = await prisma.dentist.findFirst({ where: { email: "demo@dentcode.cl" } });
-  if (!d) throw new Error("Dentista demo no encontrado. Ejecuta `npm run db:seed`.");
-  return d.id;
-}

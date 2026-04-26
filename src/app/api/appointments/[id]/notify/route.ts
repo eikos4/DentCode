@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentDentistId } from "@/lib/utils";
+import { getCurrentDentistId } from "@/lib/auth";
 import { buildConfirmationMessage, sendWhatsAppText } from "@/lib/whatsapp";
 
 export async function POST(_req: Request, { params }: { params: { id: string } }) {

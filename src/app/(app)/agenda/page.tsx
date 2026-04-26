@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getCurrentDentistId } from "@/lib/utils";
+import { getCurrentDentistId } from "@/lib/auth";
 import { AgendaClient, type Appt, type PatientLite } from "./agenda-client";
 
 export const dynamic = "force-dynamic";

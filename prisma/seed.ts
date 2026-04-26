@@ -18,6 +18,20 @@ function thisYear(month: number, day: number): Date {
 }
 
 async function main() {
+  // ===== Admin Super Usuario =====
+  const adminPasswordHash = await bcrypt.hash("admin123", 12);
+  await prisma.user.upsert({
+    where: { email: "admin@dentcode.cl" },
+    update: {},
+    create: {
+      email: "admin@dentcode.cl",
+      passwordHash: adminPasswordHash,
+      role: "SUPER_ADMIN",
+      isActive: true,
+    },
+  });
+  console.log("✅ Usuario admin creado: admin@dentcode.cl / admin123");
+
   // ===== Dentista demo =====
   const passwordHash = await bcrypt.hash("demo123", 12);
   const dentist = await prisma.dentist.upsert({
@@ -671,10 +685,12 @@ async function main() {
 
   // Laboratorio demo asociado a la clínica
   const labPasswordHash = await bcrypt.hash("lab123", 12);
-  const labDemo = await prisma.laboratory.create({
-    data: {
+  const labDemo = await prisma.laboratory.upsert({
+    where: { email: "lab@radiologicadental.cl" },
+    update: {},
+    create: {
       name: "Laboratorio Radiográfico Dental Santiago",
-      rut: "76.987.654-3",
+      rut: "77.111.222-3",
       email: "lab@radiologicadental.cl",
       passwordHash: labPasswordHash,
       phone: "+56 2 2345 6788",

@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { LandingContactForm } from "@/components/landing-contact-form";
 import {
   CalendarDays, MessageCircle, Users, Activity, FileImage, Wallet,
   Shield, Zap, Sparkles, HeartHandshake, Eye, LineChart, ArrowRight,
   CheckCircle2, Stethoscope, Clock, Lock, Star, Search,
-  Globe, BarChart3, Send,
+  Globe, BarChart3, Send, FlaskConical, Share2, Monitor
 } from "lucide-react";
 
 export const metadata = {
@@ -17,11 +18,11 @@ export default function Landing() {
     <main className="min-h-screen bg-white text-slate-900 antialiased overflow-x-hidden">
       {/* Top bar */}
       <div className="bg-slate-950 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-2 text-xs flex items-center justify-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-          Parte del ecosistema{" "}
-          <a href="https://www.leucode.cl" target="_blank" rel="noreferrer" className="font-semibold text-sky-300 hover:underline">Leucode.IA</a>
-          {" "}· Salud digital con IA para Chile y LATAM
+        <div className="max-w-7xl mx-auto px-4 py-2 text-xs flex items-center justify-center gap-1.5 flex-wrap text-center leading-tight">
+          <Sparkles className="w-3 h-3 text-sky-400 flex-shrink-0" />
+          <span className="whitespace-nowrap">Parte del ecosistema</span>
+          <a href="https://www.leucode.cl" target="_blank" rel="noreferrer" className="font-bold text-sky-300 hover:underline whitespace-nowrap">Leucode.IA</a>
+          <span className="whitespace-nowrap text-slate-400">· Salud digital con IA para Chile y LATAM</span>
         </div>
       </div>
 
@@ -40,7 +41,7 @@ export default function Landing() {
             <a href="#contacto" className="hover:text-blue-600 transition">Contacto</a>
           </nav>
           <div className="flex items-center gap-2">
-            <Link href="/login" className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition">Ingresar</Link>
+            <Link href="/login" className="inline-flex px-3 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition">Ingresar</Link>
             <Link href="/registro" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white text-sm font-semibold hover:shadow-lg hover:shadow-blue-500/30 hover:scale-[1.02] transition-all">Empezar gratis</Link>
           </div>
         </div>
@@ -83,7 +84,7 @@ export default function Landing() {
             Disponible ahora para dentistas y clínicas en Chile
           </div>
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] anim-fade-up delay-100">
-            <span className="text-white">Tu consultorio</span><br />
+            <span className="text-white">Tu consultorio Dental</span><br />
             <span className="bg-gradient-to-r from-blue-400 via-sky-400 to-cyan-300 bg-clip-text text-transparent anim-gradient">100% digital</span>
           </h1>
           <p className="mt-8 text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed anim-fade-up delay-200">
@@ -109,7 +110,7 @@ export default function Landing() {
           {/* Stats */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto anim-fade-up delay-500">
             {[
-              { value: "500+", label: "Dentistas", icon: Users },
+              { value: "500+", label: "Visitas", icon: Users },
               { value: "12K+", label: "Citas agendadas", icon: CalendarDays },
               { value: "98%", label: "Uptime", icon: Activity },
               { value: "4.9★", label: "Satisfacción", icon: Star },
@@ -125,7 +126,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ Social proof banner ═══ */}
-   
+
 
       {/* ═══ Funciones ═══ */}
       <section id="funciones" className="max-w-7xl mx-auto px-6 py-28">
@@ -209,7 +210,7 @@ export default function Landing() {
                     <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">En curso</span>
                   </div>
                   {[
-                    { t: "09:00", n: "Juan Pérez S.", a: "Limpieza", c: "bg-emerald-500" },
+                    { t: "09:00", n: "Antonia Escandon", a: "Limpieza", c: "bg-emerald-500" },
                     { t: "10:30", n: "María González", a: "Control ortodoncia", c: "bg-sky-500" },
                     { t: "12:00", n: "Pedro Ramírez", a: "Endodoncia", c: "bg-amber-500" },
                     { t: "16:30", n: "Ana Silva", a: "Ficha nueva", c: "bg-violet-500" },
@@ -231,6 +232,90 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══ DentCode Lab (Nueva Sección) ═══ */}
+      <section className="relative bg-slate-950 py-32 overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-cyan-500 rounded-full blur-[120px] anim-float" />
+          <div className="absolute bottom-1/4 left-0 w-[500px] h-[500px] bg-teal-500 rounded-full blur-[100px] anim-float" style={{ animationDelay: "3s" }} />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="anim-fade-up">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-bold mb-6">
+                Para Centros Radiológicos
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black text-white leading-tight tracking-tight">
+                DentCode <span className="bg-gradient-to-r from-cyan-400 to-teal-300 bg-clip-text text-transparent">Lab</span>
+              </h2>
+              <p className="mt-6 text-lg text-slate-400 leading-relaxed max-w-xl">
+                Digitaliza tu laboratorio y conecta instantáneamente con cientos de clínicas. Entrega resultados, gestiona órdenes y elimina el uso de placas físicas.
+              </p>
+
+              <div className="mt-10 space-y-6">
+                {[
+                  { icon: FlaskConical, t: "Órdenes Digitales", d: "Recibe solicitudes de exámenes directamente en tu panel de control." },
+                  { icon: Share2, t: "Trazabilidad de Estados", d: "Notifica automáticamente cuando el examen está en proceso o listo." },
+                  { icon: Monitor, t: "Entrega DICOM & HD", d: "Sube archivos médicos profesionales accesibles desde cualquier visor." }
+                ].map((item) => (
+                  <div key={item.t} className="flex gap-4 group">
+                    <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition">
+                      <item.icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-lg">{item.t}</h4>
+                      <p className="text-sm text-slate-500">{item.d}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-12">
+                <Link href="/login-laboratorio" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold hover:shadow-lg hover:shadow-cyan-500/30 transition-all group">
+                  Ingresar al Portal Lab
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="relative anim-scale-in">
+              <div className="absolute -inset-4 bg-cyan-500/20 blur-2xl rounded-3xl" />
+              <div className="relative bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="p-4 border-b border-white/5 bg-slate-800/50 flex items-center gap-2">
+                  <FlaskConical className="w-4 h-4 text-cyan-400" />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lab Dashboard · Tareas Pendientes</span>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div className="p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl">
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase border border-amber-500/30">Pendiente</span>
+                      <span className="text-[10px] text-slate-500 font-bold">#ORD-8921</span>
+                    </div>
+                    <p className="text-white font-bold">Carlos Maturana</p>
+                    <p className="text-xs text-slate-400">Radiografía Panorámica · Dr. Rojas</p>
+                  </div>
+                  <div className="p-4 bg-slate-800/50 border border-white/5 rounded-2xl opacity-60">
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase border border-emerald-500/30">Listo</span>
+                      <span className="text-[10px] text-slate-500 font-bold">#ORD-8919</span>
+                    </div>
+                    <p className="text-white font-bold">Patricia Lagos</p>
+                    <p className="text-xs text-slate-400">Tomografía Cone Beam · Clínica Providencia</p>
+                  </div>
+                </div>
+                <div className="px-6 py-8 bg-gradient-to-r from-cyan-600 to-teal-600 text-center">
+                  <p className="text-white font-bold text-xl mb-2">¿Eres dueño de un Laboratorio?</p>
+                  <p className="text-cyan-50 text-sm mb-6">Únete a la red más grande de dentistas en Chile.</p>
+                  <button className="px-6 py-3 bg-white text-cyan-600 rounded-xl font-bold text-sm hover:scale-105 transition shadow-lg">
+                    Saber más sobre DentCode Lab
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ═══ Precios ═══ */}
       <section id="precios" className="max-w-7xl mx-auto px-6 py-28">
         <SectionHead eyebrow="Precios" title="Simple, transparente y en pesos chilenos." subtitle="Sin costos ocultos ni permanencia. Cancela cuando quieras. IVA incluido." />
@@ -242,7 +327,7 @@ export default function Landing() {
             <p className="text-xs text-slate-400 mt-1">IVA incluido</p>
             <Link href="/registro" className="mt-6 block text-center px-5 py-3.5 rounded-xl border-2 border-slate-900 text-slate-900 font-bold hover:bg-slate-900 hover:text-white transition">Probar 14 días gratis</Link>
             <ul className="mt-8 space-y-3 text-sm">
-              {["Pacientes y citas ilimitadas","Agenda completa","WhatsApp automático","Ficha clínica SOAP","Odontograma FDI","Radiografías y fotos","Recalls y controles","Dashboard KPIs","1 sede · 1 profesional","Soporte email 24h"].map((f) => (
+              {["Pacientes y citas ilimitadas", "Agenda completa", "WhatsApp automático", "Ficha clínica SOAP", "Odontograma FDI", "Radiografías y fotos", "Recalls y controles", "Dashboard KPIs", "1 sede · 1 profesional", "Soporte email 24h"].map((f) => (
                 <li key={f} className="flex gap-3"><CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" /><span className="text-slate-700">{f}</span></li>
               ))}
             </ul>
@@ -253,10 +338,10 @@ export default function Landing() {
             <p className="text-sm text-slate-600 mt-1">Para clínicas y equipos</p>
             <div className="mt-6 flex items-baseline gap-2"><span className="text-5xl font-black tracking-tight bg-gradient-to-r from-blue-700 to-sky-600 bg-clip-text text-transparent">$200.000</span><span className="text-slate-500">CLP / mes</span></div>
             <p className="text-xs text-slate-400 mt-1">IVA incluido</p>
-            <Link href="/registro" className="mt-6 block text-center px-5 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-bold hover:shadow-lg hover:shadow-blue-600/30 hover:scale-[1.02] transition-all">Probar 14 días gratis</Link>
+            <Link href="/registro-clinica" className="mt-6 block text-center px-5 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-bold hover:shadow-lg hover:shadow-blue-600/30 hover:scale-[1.02] transition-all">Probar 14 días gratis</Link>
             <ul className="mt-8 space-y-3 text-sm">
               <li className="flex gap-3 font-semibold"><CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" /><span>Todo del Plan Dentista, más:</span></li>
-              {["Hasta 10 profesionales (+$8.000 c/u)","Multi-sede ilimitada","Agenda por box / profesional","Inventario e insumos","Reportes avanzados","Presupuestos multi-sesión","Roles y permisos","Exportación de datos","Soporte WhatsApp 4h","Onboarding 1-a-1"].map((f) => (
+              {["Hasta 10 profesionales (+$8.000 c/u)", "Multi-sede ilimitada", "Agenda por box / profesional", "Inventario e insumos", "Reportes avanzados", "Presupuestos multi-sesión", "Roles y permisos", "Exportación de datos", "Soporte WhatsApp 4h", "Onboarding 1-a-1"].map((f) => (
                 <li key={f} className="flex gap-3"><CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" /><span className="text-slate-700">{f}</span></li>
               ))}
             </ul>
@@ -325,17 +410,7 @@ export default function Landing() {
       <section id="contacto" className="bg-slate-50 border-t border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-28">
           <SectionHead eyebrow="Conversemos" title="¿Listo para empezar?" subtitle="Cuéntanos tu contexto y te contactamos en menos de 24 horas." />
-          <form className="mt-14 grid md:grid-cols-2 gap-5 p-8 md:p-10 rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 anim-fade-up">
-            <label className="text-sm font-medium text-slate-700">Nombre<input className="mt-2 w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition" /></label>
-            <label className="text-sm font-medium text-slate-700">Email<input type="email" className="mt-2 w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition" /></label>
-            <label className="text-sm font-medium text-slate-700">Teléfono / WhatsApp<input placeholder="+56 9 82232855" className="mt-2 w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition" /></label>
-            <label className="text-sm font-medium text-slate-700">Tipo de cuenta<select className="mt-2 w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition bg-white"><option>Dentista independiente</option><option>Clínica dental</option><option>Otro</option></select></label>
-            <label className="text-sm font-medium text-slate-700 md:col-span-2">Cuéntanos tu contexto<textarea rows={4} placeholder="¿Cuántos pacientes atiendes al mes?" className="mt-2 w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition resize-none" /></label>
-            <div className="md:col-span-2 flex items-center justify-between flex-wrap gap-4 pt-2">
-              <p className="text-xs text-slate-400">Al enviar aceptas la Política de Privacidad de Leucode.IA.</p>
-              <button type="button" className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-bold hover:shadow-lg hover:shadow-blue-500/30 hover:scale-[1.02] transition-all flex items-center gap-2"><Send className="w-4 h-4" /> Enviar</button>
-            </div>
-          </form>
+          <LandingContactForm />
         </div>
       </section>
 
@@ -349,9 +424,9 @@ export default function Landing() {
             </div>
             <p className="text-slate-500 leading-relaxed">Gestión clínica para dentistas y clínicas en Chile. Ecosistema <a href="https://www.leucode.cl" target="_blank" rel="noreferrer" className="text-sky-400 hover:underline font-medium">Leucode.IA</a>.</p>
           </div>
-          <FooterCol title="Plataforma" items={[{ label: "Agenda", href: "/agenda" },{ label: "Pacientes", href: "/pacientes" },{ label: "Odontograma", href: "/pacientes" },{ label: "Dashboard", href: "/dashboard" }]} />
-          <FooterCol title="Empresa" items={[{ label: "Precios", href: "#precios" },{ label: "Visión", href: "#vision" },{ label: "Contacto", href: "#contacto" },{ label: "Leucode.IA", href: "https://www.leucode.cl" }]} />
-          <FooterCol title="Contacto" items={[{ label: "contacto@dentcode.cl", href: "mailto:contacto@dentcode.cl" },{ label: "Santiago, Chile", href: "#" },{ label: "WhatsApp: +56 9 82232855", href: "#" }]} />
+          <FooterCol title="Plataforma" items={[{ label: "Agenda", href: "/agenda" }, { label: "Pacientes", href: "/pacientes" }, { label: "Odontograma", href: "/pacientes" }, { label: "Dashboard", href: "/dashboard" }]} />
+          <FooterCol title="Empresa" items={[{ label: "Precios", href: "#precios" }, { label: "Visión", href: "#vision" }, { label: "Contacto", href: "#contacto" }, { label: "Leucode.IA", href: "https://www.leucode.cl" }]} />
+          <FooterCol title="Contacto" items={[{ label: "contacto@dentcode.cl", href: "mailto:contacto@dentcode.cl" }, { label: "Santiago, Chile", href: "#" }, { label: "WhatsApp: +56 9 82232855", href: "#" }]} />
         </div>
         <div className="border-t border-white/10">
           <div className="max-w-7xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">

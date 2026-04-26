@@ -688,7 +688,7 @@ export function DentistRegistrationWizard() {
                     className="mt-1 w-4 h-4 text-blue-600 rounded"
                   />
                   <span className="text-sm text-slate-700">
-                    Deseo recibir novedades y promociones por email
+                    Deseo recibir novedades y promociones por email y WhatsApp
                   </span>
                 </label>
               </div>

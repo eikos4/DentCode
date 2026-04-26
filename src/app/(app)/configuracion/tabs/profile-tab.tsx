@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Globe, Eye, EyeOff, ExternalLink, Loader2, Copy, ShieldCheck, AlertCircle } from "lucide-react";
+import { CheckCircle2, Globe, Eye, EyeOff, ExternalLink, Loader2, Copy, ShieldCheck, AlertCircle, Instagram, Facebook, Camera, Upload } from "lucide-react";
 import type { DentistData, PublicProfileData } from "../config-client";
 import { TagsInput } from "./tags-input";
 
@@ -16,7 +16,37 @@ export function ProfileTab({
   const [d, setD] = useState(initialDentist);
   const [p, setP] = useState(initialPublic);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploading(true);
+    setMsg(null);
+    
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    try {
+      const res = await fetch("/api/config/profile/photo", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setD({ ...d, photoUrl: data.url });
+        setMsg({ type: "ok", text: "Foto actualizada" });
+      } else {
+        setMsg({ type: "err", text: data.error || "Error al subir foto" });
+      }
+    } catch {
+      setMsg({ type: "err", text: "Error de conexión" });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const save = async () => {
     setSaving(true);
@@ -41,6 +71,8 @@ export function ProfileTab({
           education: p.education,
           acceptsInsurance: p.acceptsInsurance,
           emergencyCare: p.emergencyCare,
+          facebookUrl: p.facebookUrl || "",
+          instagramUrl: p.instagramUrl || "",
         }),
       });
       const data = await res.json();
@@ -177,14 +209,65 @@ export function ProfileTab({
           </Field>
         </div>
 
-        <Field label="Foto de perfil (URL)" hint="Pega la URL de tu foto. Próximamente podrás subirla directamente.">
-          <input
-            value={d.photoUrl || ""}
-            onChange={(e) => setD({ ...d, photoUrl: e.target.value })}
-            placeholder="https://..."
-            className="input"
-          />
-        </Field>
+        <div className="flex items-center gap-6 p-4 rounded-xl border border-slate-100 bg-slate-50/50 mb-6">
+          <div className="relative group">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-200 border-2 border-white shadow-sm">
+              {d.photoUrl ? (
+                <img src={d.photoUrl} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-slate-400">
+                  <Camera className="w-8 h-8" />
+                </div>
+              )}
+            </div>
+            <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition">
+              <Upload className="w-5 h-5" />
+              <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
+            </label>
+            {uploading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-full">
+                <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-slate-900">Foto de perfil</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Sube una foto profesional para generar más confianza.</p>
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                value={d.photoUrl || ""}
+                onChange={(e) => setD({ ...d, photoUrl: e.target.value })}
+                placeholder="O pega una URL externa..."
+                className="flex-1 text-xs px-3 py-1.5 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4 mt-6">
+          <Field label="Facebook (URL opcional)">
+            <div className="relative">
+              <Facebook className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                value={p.facebookUrl || ""}
+                onChange={(e) => setP({ ...p, facebookUrl: e.target.value })}
+                placeholder="https://facebook.com/tu-perfil"
+                className="input pl-9"
+              />
+            </div>
+          </Field>
+          <Field label="Instagram (URL opcional)">
+            <div className="relative">
+              <Instagram className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                value={p.instagramUrl || ""}
+                onChange={(e) => setP({ ...p, instagramUrl: e.target.value })}
+                placeholder="https://instagram.com/tu-usuario"
+                className="input pl-9"
+              />
+            </div>
+          </Field>
+        </div>
 
         <Field label="Bio pública" hint="Este texto aparece en tu perfil público. Háblale directamente a tus pacientes.">
           <textarea

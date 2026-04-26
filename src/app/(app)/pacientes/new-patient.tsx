@@ -48,8 +48,19 @@ const STEPS = [
   { id: 3, label: "Revisar", icon: CheckCircle2, description: "Confirmar y crear" },
 ];
 
-export function NewPatientDialog() {
-  const [open, setOpen] = useState(false);
+export function NewPatientDialog({
+  externalOpen,
+  onExternalOpenChange,
+  hideButton = false,
+}: {
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
+  hideButton?: boolean;
+}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = onExternalOpenChange || setInternalOpen;
+
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FormData>(INITIAL);
@@ -282,12 +293,14 @@ export function NewPatientDialog() {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition flex items-center gap-1.5"
-      >
-        <UserPlus className="w-4 h-4" /> Nuevo paciente
-      </button>
+      {!hideButton && (
+        <button
+          onClick={() => setOpen(true)}
+          className="px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition flex items-center gap-1.5"
+        >
+          <UserPlus className="w-4 h-4" /> Nuevo paciente
+        </button>
+      )}
       {mounted && drawer ? createPortal(drawer, document.body) : null}
     </>
   );

@@ -73,11 +73,11 @@ export function ServicesTab({ initial }: { initial: ServiceData[] }) {
         });
         const data = await res.json();
         if (res.ok) {
-          setServices((prev) => [...prev, data.service]);
+          setServices((prev) => [...prev, data]);
           setMsg({ type: "ok", text: "Servicio creado" });
           resetForm();
         } else {
-          setMsg({ type: "err", text: data.message || "Error" });
+          setMsg({ type: "err", text: data.error || data.message || "Error" });
         }
       }
     } catch {
@@ -96,7 +96,7 @@ export function ServicesTab({ initial }: { initial: ServiceData[] }) {
       });
       if (res.ok) {
         setServices((prev) =>
-          prev.map((x) => (x.id === s.id ? { ...x, active: !x.active } : x))
+          prev.map((x) => (x && x.id === s.id ? { ...x, active: !x.active } : x))
         );
       }
     } catch {}
@@ -107,7 +107,7 @@ export function ServicesTab({ initial }: { initial: ServiceData[] }) {
     try {
       const res = await fetch(`/api/config/services/${id}`, { method: "DELETE" });
       if (res.ok) {
-        setServices((prev) => prev.filter((s) => s.id !== id));
+        setServices((prev) => prev.filter((s) => s && s.id !== id));
         setMsg({ type: "ok", text: "Servicio eliminado" });
       }
     } catch {
@@ -237,7 +237,7 @@ export function ServicesTab({ initial }: { initial: ServiceData[] }) {
         </div>
       ) : (
         <div className="space-y-2">
-          {services.map((s) => (
+          {services.filter(Boolean).map((s) => (
             <div
               key={s.id}
               className={`flex items-center gap-3 bg-white border rounded-xl px-4 py-3 transition ${

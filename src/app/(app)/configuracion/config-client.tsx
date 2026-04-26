@@ -32,6 +32,8 @@ export interface PublicProfileData {
   education: string[];
   acceptsInsurance: boolean;
   emergencyCare: boolean;
+  facebookUrl?: string;
+  instagramUrl?: string;
 }
 
 export interface ServiceData {

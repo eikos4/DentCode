@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getCurrentDentistId } from "@/lib/utils";
+import { getCurrentDentistId } from "@/lib/auth";
 import { PatientTabs } from "./patient-tabs";
 import { Phone, Mail, IdCard, AlertTriangle } from "lucide-react";
 

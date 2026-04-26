@@ -61,6 +61,22 @@ export function middleware(req: NextRequest) {
     }
   }
 
+  // Rutas de admin requieren SUPER_ADMIN
+  if (pathname.startsWith("/admin")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { role?: string };
+      if (decoded.role !== "SUPER_ADMIN") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+      return NextResponse.next();
+    } catch {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+  }
+
   // Rutas normales (no lab)
   if (!token) {
     const loginUrl = new URL(loginPath, req.url);
@@ -69,15 +85,16 @@ export function middleware(req: NextRequest) {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { role?: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { role?: string, dentistId?: string };
+    const role = decoded.role || (decoded.dentistId ? "DENTIST" : undefined);
 
     // CLINIC_ADMIN / CLINIC_STAFF solo pueden acceder a rutas /clinic
-    if ((decoded.role === "CLINIC_ADMIN" || decoded.role === "CLINIC_STAFF") && !isClinicPath) {
+    if ((role === "CLINIC_ADMIN" || role === "CLINIC_STAFF") && !isClinicPath) {
       return NextResponse.redirect(new URL("/clinic", req.url));
     }
 
     // Dentistas no pueden acceder a rutas /clinic
-    if (decoded.role === "DENTIST" && isClinicPath) {
+    if (role === "DENTIST" && isClinicPath) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
