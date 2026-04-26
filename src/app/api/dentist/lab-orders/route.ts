@@ -1,25 +1,21 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 
 // GET /api/dentist/lab-orders - Obtener órdenes del dentista o su clínica
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || (session.user.role !== "DENTIST" && session.user.role !== "CLINIC_ADMIN" && session.user.role !== "CLINIC_STAFF")) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const user = await requireRole(["DENTIST", "CLINIC_ADMIN", "CLINIC_STAFF"]);
 
     const { searchParams } = new URL(req.url);
     const patientId = searchParams.get("patientId");
 
     const where: any = {};
     
-    if (session.user.clinicId) {
-      where.clinicId = session.user.clinicId;
-    } else if (session.user.dentistId) {
-      where.dentistId = session.user.dentistId;
+    if (user.clinicId) {
+      where.clinicId = user.clinicId;
+    } else if (user.dentistId) {
+      where.dentistId = user.dentistId;
     }
 
     if (patientId) {
@@ -37,7 +33,10 @@ export async function GET(req: Request) {
     });
 
     return NextResponse.json({ orders });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message?.includes("No autenticado") || error.message?.includes("Acceso denegado")) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     console.error("Error fetching lab orders:", error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
@@ -46,8 +45,9 @@ export async function GET(req: Request) {
 // POST /api/dentist/lab-orders - Crear una nueva orden
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user.dentistId) {
+    const user = await requireRole(["DENTIST"]);
+
+    if (!user.dentistId) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -61,8 +61,8 @@ export async function POST(req: Request) {
     const order = await prisma.labOrder.create({
       data: {
         patientId,
-        dentistId: session.user.dentistId,
-        clinicId: session.user.clinicId,
+        dentistId: user.dentistId,
+        clinicId: user.clinicId,
         labId: labId || null,
         examType,
         notes,
@@ -71,7 +71,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ message: "Orden creada exitosamente", order });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message?.includes("No autenticado") || error.message?.includes("Acceso denegado")) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     console.error("Error creating lab order:", error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
