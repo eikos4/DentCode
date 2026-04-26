@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { requireLabAuth } from "@/lib/lab-auth";
 import { saveUpload } from "@/lib/storage";
 
+// Trigger fresh build on Render
+
 export async function GET(req: NextRequest) {
   try {
     const lab = requireLabAuth(req);
